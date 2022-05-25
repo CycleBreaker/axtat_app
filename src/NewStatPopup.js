@@ -1,4 +1,4 @@
-import { Fragment, forwardRef, useState } from "react";
+import React, { Fragment, forwardRef, useState } from "react";
 //MUI elements
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";

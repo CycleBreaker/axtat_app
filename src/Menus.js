@@ -1,9 +1,7 @@
-import { Fragment, useState, useContext } from "react";
+import React, { Fragment, useState } from "react";
 import { Link } from "react-router-dom";
 //App Components
 import Footer from "./Footer";
-//Contexts
-import { ResolutionContext } from "./contexts/ResolutionContext";
 //MUI elements
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -22,11 +20,15 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import SettingsIcon from "@mui/icons-material/Settings";
+//Responsiveness
+import MediaQueries from "./helpers/MediaQueries";
 //Custom scrollbar
 import { Scrollbars } from "react-custom-scrollbars-2";
 
 export default function Menus(props) {
-  const { switchTheme, currentTheme } = props;
+  const { switchTheme, currentTheme, mobileResolution } = props;
+  //Responsiveness
+  //const { mobileResolution, tabletResolution } = MediaQueries();
 
   //States
   const [anchorMenu, setAnchorMenu] = useState(null); //Opens top menu
@@ -45,12 +47,22 @@ export default function Menus(props) {
     setCurrentScreen(v);
   };
 
-  //Resolution and responsiveness
-  const { mobileResolution, tabletResolution } = useContext(ResolutionContext);
-
   return (
     <Fragment>
-      <Box sx={mobileResolution ? { flexGrow: 1 } : { display: "none" }}>
+      <Box
+        sx={
+          mobileResolution
+            ? {
+                flexGrow: 1,
+                position: "fixed",
+                top: 0,
+                left: 0,
+                zIndex: 999,
+                width: "100%",
+              }
+            : { display: "none" }
+        }
+      >
         <AppBar position="static">
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
@@ -134,3 +146,6 @@ export default function Menus(props) {
     </Fragment>
   );
 }
+
+//Top menu = sx={mobileResolution ? { flexGrow: 1 } : { display: "none" }}
+//Bottom menu = sx={mobileResolution? { display: "none" } : { flexGrow: 1, position: "fixed", bottom: 0, left: 0, right: 0 }}

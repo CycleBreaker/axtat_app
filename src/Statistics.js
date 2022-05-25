@@ -1,4 +1,4 @@
-import { Fragment, useContext, useState } from "react";
+import React, { Fragment, useContext, useState } from "react";
 //App components
 import StatWindow from "./StatWindow";
 import NewStatPopup from "./NewStatPopup";
@@ -9,12 +9,12 @@ import Box from "@mui/material/Box";
 import AddIcon from "@mui/icons-material/Add";
 //Drag and Drop
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-//Contexts
-import { ResolutionContext } from "./contexts/ResolutionContext";
+//Responsiveness
+import MediaQueries from "./helpers/MediaQueries";
 
 export default function Statistics(props) {
-  //Contexts
-  const { mobileResolution, tabletResolution } = useContext(ResolutionContext);
+  //Responsiveness
+  const { mobileResolution, tabletResolution } = MediaQueries();
   //Sorting order and state
   const [windowOrder, setWindowOrder] = useState([
     "one",
@@ -55,7 +55,7 @@ export default function Statistics(props) {
         sx={{
           margin: 0,
           top: "auto",
-          right: tabletResolution ? "15%" : 50,
+          right: 50,
           bottom: 80,
           left: "auto",
           position: "fixed",
@@ -66,7 +66,7 @@ export default function Statistics(props) {
       </Fab>
       <Box
         sx={{
-          width: tabletResolution ? 800 : "100%",
+          width: 800,
           m: "0 auto",
           boxSizing: "border-box",
           p: 2,
@@ -90,3 +90,6 @@ export default function Statistics(props) {
 
 //В этом и в других компонентах, где имеются графики, нужно добавить Мемо, чтобы они не дёргались и не перерендеривались
 //Заменить текущий drag-and-drop на pretty list, или как его там
+
+//Fab button = right: tabletResolution ? 50 : "15%",
+//Box sx = tabletResolution ? "100%" : 800

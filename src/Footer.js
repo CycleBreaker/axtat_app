@@ -1,3 +1,5 @@
+import React from "react";
+//MUI elements
 import Box from "@mui/material/Box";
 
 export default function Footer() {

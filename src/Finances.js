@@ -1,8 +1,6 @@
-import { Fragment, useState, useContext } from "react";
+import React, { Fragment, useState } from "react";
 //App Components
 import NewEntryPopup from "./NewEntryPopup";
-//Contexts
-import { ResolutionContext } from "./contexts/ResolutionContext";
 //MUI elements
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
@@ -26,23 +24,23 @@ const tempChartData = [
   { id: 8, year: 2018, thing: 73 },
   { id: 9, year: 2020, thing: 82 },
   { id: 10, year: 2022, thing: 26 },
-  { id: 6, year: 2007, thing: 100 },
-  { id: 7, year: 2013, thing: 65 },
-  { id: 8, year: 2018, thing: 73 },
-  { id: 9, year: 2020, thing: 82 },
-  { id: 10, year: 2022, thing: 26 },
+  { id: 11, year: 2007, thing: 100 },
+  { id: 12, year: 2013, thing: 65 },
+  { id: 13, year: 2018, thing: 73 },
+  { id: 14, year: 2020, thing: 82 },
+  { id: 15, year: 2022, thing: 26 },
 ];
 const tempChartData2 = [
-  { id: 1, year: 1989, thing: 1003 },
-  { id: 2, year: 1992, thing: 433 },
-  { id: 3, year: 1996, thing: 331 },
-  { id: 4, year: 2000, thing: 531 },
-  { id: 5, year: 2004, thing: 730 },
-  { id: 6, year: 2007, thing: 1300 },
-  { id: 7, year: 2013, thing: 635 },
-  { id: 8, year: 2018, thing: 373 },
-  { id: 9, year: 2020, thing: 832 },
-  { id: 10, year: 2022, thing: 236 },
+  { id: 16, year: 1989, thing: 1003 },
+  { id: 17, year: 1992, thing: 433 },
+  { id: 18, year: 1996, thing: 331 },
+  { id: 19, year: 2000, thing: 531 },
+  { id: 20, year: 2004, thing: 730 },
+  { id: 21, year: 2007, thing: 1300 },
+  { id: 22, year: 2013, thing: 635 },
+  { id: 23, year: 2018, thing: 373 },
+  { id: 24, year: 2020, thing: 832 },
+  { id: 25, year: 2022, thing: 236 },
 ];
 const tempChartDataObject = {
   labels: tempChartData.map((y) => y.year),
@@ -73,8 +71,6 @@ const tempEntryComponent = function (id, year, thing) {
 };
 
 export default function Finances(props) {
-  //Responsiveness
-  const { mobileResolution, tabletResolution } = useContext(ResolutionContext);
   //New Entry popup
   const [popupOpen, setPopupOpen] = useState(false);
   const openPopup = () => setPopupOpen(true);
@@ -87,7 +83,7 @@ export default function Finances(props) {
         sx={{
           margin: 0,
           top: "auto",
-          right: tabletResolution ? "15%" : 50,
+          right: 50,
           bottom: 80,
           left: "auto",
           position: "fixed",
@@ -121,3 +117,4 @@ export default function Finances(props) {
 }
 
 // sx={useCommonWindowSize}
+// Fab sx = right: tabletResolution ? "15%" : 50,

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 //MUI elements
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
