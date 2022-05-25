@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useContext } from "react";
 import { Link } from "react-router-dom";
 //App Components
 import Footer from "./Footer";
@@ -20,15 +20,16 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import SettingsIcon from "@mui/icons-material/Settings";
-//Responsiveness
-import MediaQueries from "./helpers/MediaQueries";
 //Custom scrollbar
 import { Scrollbars } from "react-custom-scrollbars-2";
+//Contexts
+import { ResolutionContext } from "./contexts/ResolutionContext";
 
 export default function Menus(props) {
-  const { switchTheme, currentTheme, mobileResolution } = props;
+  const { switchTheme, currentTheme } = props;
+
   //Responsiveness
-  //const { mobileResolution, tabletResolution } = MediaQueries();
+  const { mobileResolution } = useContext(ResolutionContext);
 
   //States
   const [anchorMenu, setAnchorMenu] = useState(null); //Opens top menu
@@ -138,14 +139,26 @@ export default function Menus(props) {
           value={currentScreen}
           onChange={selectCurrentScreen}
         >
-          <BottomNavigationAction label="Home" icon={<AttachMoneyIcon />} />
-          <BottomNavigationAction label="Stats" icon={<QueryStatsIcon />} />
-          <BottomNavigationAction label="Settings" icon={<SettingsIcon />} />
+          <BottomNavigationAction
+            label="Home"
+            icon={<AttachMoneyIcon />}
+            component={Link}
+            to={"/finances"}
+          />
+          <BottomNavigationAction
+            label="Stats"
+            icon={<QueryStatsIcon />}
+            component={Link}
+            to={"/statistics"}
+          />
+          <BottomNavigationAction
+            label="Settings"
+            icon={<SettingsIcon />}
+            component={Link}
+            to={"/settings"}
+          />
         </BottomNavigation>
       </Box>
     </Fragment>
   );
 }
-
-//Top menu = sx={mobileResolution ? { flexGrow: 1 } : { display: "none" }}
-//Bottom menu = sx={mobileResolution? { display: "none" } : { flexGrow: 1, position: "fixed", bottom: 0, left: 0, right: 0 }}

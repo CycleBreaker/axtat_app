@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useContext } from "react";
 //App Components
 import NewEntryPopup from "./NewEntryPopup";
 //MUI elements
@@ -11,6 +11,8 @@ import AddIcon from "@mui/icons-material/Add";
 //ChartJS elements
 import { Line } from "react-chartjs-2";
 import { Chart } from "chart.js/auto";
+//Contexts
+import { ResolutionContext } from "./contexts/ResolutionContext";
 
 //Temporary boilerplate stuff
 const tempChartData = [
@@ -71,6 +73,8 @@ const tempEntryComponent = function (id, year, thing) {
 };
 
 export default function Finances(props) {
+  //Responsiveness
+  const { tabletResolution, commonWindowSize } = useContext(ResolutionContext);
   //New Entry popup
   const [popupOpen, setPopupOpen] = useState(false);
   const openPopup = () => setPopupOpen(true);
@@ -83,7 +87,7 @@ export default function Finances(props) {
         sx={{
           margin: 0,
           top: "auto",
-          right: 50,
+          right: tabletResolution ? "15%" : 50,
           bottom: 80,
           left: "auto",
           position: "fixed",
@@ -92,7 +96,7 @@ export default function Finances(props) {
       >
         <AddIcon />
       </Fab>
-      <Box>
+      <Box sx={commonWindowSize}>
         <NewEntryPopup open={popupOpen} closeFn={closePopup} />
         <Grid container spacing={1}>
           <Grid item xs={12}>
@@ -115,6 +119,3 @@ export default function Finances(props) {
     </Fragment>
   );
 }
-
-// sx={useCommonWindowSize}
-// Fab sx = right: tabletResolution ? "15%" : 50,

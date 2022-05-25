@@ -7,14 +7,14 @@ import Fab from "@mui/material/Fab";
 import Box from "@mui/material/Box";
 //Icons
 import AddIcon from "@mui/icons-material/Add";
+//Contexts
+import { ResolutionContext } from "./contexts/ResolutionContext";
 //Drag and Drop
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-//Responsiveness
-import MediaQueries from "./helpers/MediaQueries";
 
 export default function Statistics(props) {
   //Responsiveness
-  const { mobileResolution, tabletResolution } = MediaQueries();
+  const { tabletResolution, commonWindowSize } = useContext(ResolutionContext);
   //Sorting order and state
   const [windowOrder, setWindowOrder] = useState([
     "one",
@@ -55,7 +55,7 @@ export default function Statistics(props) {
         sx={{
           margin: 0,
           top: "auto",
-          right: 50,
+          right: tabletResolution ? 50 : "15%",
           bottom: 80,
           left: "auto",
           position: "fixed",
@@ -64,16 +64,7 @@ export default function Statistics(props) {
       >
         <AddIcon />
       </Fab>
-      <Box
-        sx={{
-          width: 800,
-          m: "0 auto",
-          boxSizing: "border-box",
-          p: 2,
-          height: "calc(100vh+128px)",
-          flex: 1,
-        }}
-      >
+      <Box sx={commonWindowSize}>
         <NewStatPopup open={popupOpen} closeFn={closePopup} />
         <DragDropContext>
           <Droppable droppableId="statWindowList">
@@ -89,7 +80,4 @@ export default function Statistics(props) {
 }
 
 //В этом и в других компонентах, где имеются графики, нужно добавить Мемо, чтобы они не дёргались и не перерендеривались
-//Заменить текущий drag-and-drop на pretty list, или как его там
-
-//Fab button = right: tabletResolution ? 50 : "15%",
-//Box sx = tabletResolution ? "100%" : 800
+//Не видно надписи Made by Etcetera, возможно, из-за DnD
