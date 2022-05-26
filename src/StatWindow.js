@@ -84,9 +84,7 @@ export default function StatWindow(props) {
           )}
         </IconButton>
       </Stack>
-      <Typography variant={fullSize ? "h4" : "h5"}>
-        {props.name.name}
-      </Typography>
+      <Typography variant={fullSize ? "h4" : "h5"}>{props.name}</Typography>
       <Line data={tempChartDataObject} />
     </Paper>
   );

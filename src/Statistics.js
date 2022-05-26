@@ -23,30 +23,17 @@ export default function Statistics(props) {
     "four",
     "five",
   ]);
+  const handleOnDragEnd = function (e) {
+    if (!e.destination) return;
+    const items = Array.from(windowOrder);
+    const [reorderedItem] = items.splice(e.source.index, 1);
+    items.splice(e.destination.index, 0, reorderedItem);
+    setWindowOrder(items);
+  };
   //New Stat Window popup
   const [popupOpen, setPopupOpen] = useState(false);
   const openPopup = () => setPopupOpen(true);
   const closePopup = () => setPopupOpen(false);
-  //Temporary sortable element
-  const DndList = () => {
-    return (
-      <Box style={{ height: "100vh" }}>
-        {windowOrder.map((v, i) => (
-          <Draggable key={i} draggableId={i} index={i}>
-            {(provided) => (
-              <StatWindow
-                index={i}
-                name={v}
-                {...provided.draggableProps}
-                ref={provided.innerRef}
-                {...provided.dragHandleProps}
-              />
-            )}
-          </Draggable>
-        ))}
-      </Box>
-    );
-  };
 
   return (
     <Fragment>
@@ -66,14 +53,28 @@ export default function Statistics(props) {
       </Fab>
       <Box sx={commonWindowSize}>
         <NewStatPopup open={popupOpen} closeFn={closePopup} />
-        <DragDropContext>
+        <DragDropContext onDragEnd={handleOnDragEnd}>
           <Droppable droppableId="statWindowList">
             {(provided) => (
-              <DndList {...provided.droppableProps} ref={provided.innerRef} />
+              <div {...provided.droppableProps} ref={provided.innerRef}>
+                {windowOrder.map((wd, i) => (
+                  <Draggable key={wd} draggableId={String(i)} index={i}>
+                    {(provided) => (
+                      <div
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        ref={provided.innerRef}
+                      >
+                        <StatWindow name={wd} />
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
             )}
           </Droppable>
         </DragDropContext>
-        <Box sx={{ height: "800px" }}></Box>
       </Box>
     </Fragment>
   );
