@@ -1,4 +1,5 @@
 import React, { Fragment, useState, useContext } from "react";
+import "./Finances.css";
 //App Components
 import NewEntryPopup from "./NewEntryPopup";
 //MUI elements
@@ -87,28 +88,29 @@ export default function Finances(props) {
         sx={{
           margin: 0,
           top: "auto",
-          right: tabletResolution ? "15%" : 50,
+          right: tabletResolution ? 50 : "15%",
           bottom: 80,
           left: "auto",
           position: "fixed",
         }}
         onClick={openPopup}
+        className="slide-in-bottom3"
       >
         <AddIcon />
       </Fab>
       <Box sx={commonWindowSize}>
         <NewEntryPopup open={popupOpen} closeFn={closePopup} />
         <Grid container spacing={1}>
-          <Grid item xs={12}>
-            <Paper elevation={3}>
+          <Grid item xs={12} sx={{ width: "100%" }}>
+            <Paper elevation={3} className="slide-in-bottom">
               <Box sx={{ p: 2 }}>
                 <Box sx={{ textAlign: "right" }}>9 May 2022 - 9 May 2023</Box>
                 <Line data={tempChartDataObject} options={{ scale: 0.5 }} />
               </Box>
             </Paper>
           </Grid>
-          <Grid item xs={12}>
-            <Paper elevation={3} xl={12}>
+          <Grid item xs={12} sx={{ width: "100%" }}>
+            <Paper elevation={3} xl={12} className="slide-in-bottom2">
               {tempChartData.map((dt) =>
                 tempEntryComponent(dt.id, dt.year, dt.thing)
               )}

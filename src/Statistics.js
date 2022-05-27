@@ -10,12 +10,19 @@ import AddIcon from "@mui/icons-material/Add";
 //Contexts
 import { ResolutionContext } from "./contexts/ResolutionContext";
 //Drag and Drop
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { SortableContainer, SortableElement } from "react-sortable-hoc";
+import { arrayMoveImmutable as arrayMove } from "array-move";
 
 export default function Statistics(props) {
   //Responsiveness
   const { tabletResolution, commonWindowSize } = useContext(ResolutionContext);
-  //Sorting order and state
+
+  //New Stat Window popup
+  const [popupOpen, setPopupOpen] = useState(false);
+  const openPopup = () => setPopupOpen(true);
+  const closePopup = () => setPopupOpen(false);
+
+  //Temporary DnD stuff
   const [windowOrder, setWindowOrder] = useState([
     "one",
     "two",
@@ -23,17 +30,15 @@ export default function Statistics(props) {
     "four",
     "five",
   ]);
-  const handleOnDragEnd = function (e) {
-    if (!e.destination) return;
-    const items = Array.from(windowOrder);
-    const [reorderedItem] = items.splice(e.source.index, 1);
-    items.splice(e.destination.index, 0, reorderedItem);
-    setWindowOrder(items);
+  const onSortEnd = ({ oldIndex, newIndex }) => {
+    setWindowOrder(arrayMove(windowOrder, oldIndex, newIndex));
   };
-  //New Stat Window popup
-  const [popupOpen, setPopupOpen] = useState(false);
-  const openPopup = () => setPopupOpen(true);
-  const closePopup = () => setPopupOpen(false);
+  const DraggableStatWindowList = SortableContainer(({ children }) => {
+    return <Fragment>{children}</Fragment>;
+  });
+  const DraggableStatWindow = SortableElement((props) => (
+    <StatWindow {...props} />
+  ));
 
   return (
     <Fragment>
@@ -42,7 +47,7 @@ export default function Statistics(props) {
         sx={{
           margin: 0,
           top: "auto",
-          right: tabletResolution ? 50 : "15%",
+          right: tabletResolution ? "15%" : 50,
           bottom: 80,
           left: "auto",
           position: "fixed",
@@ -53,28 +58,13 @@ export default function Statistics(props) {
       </Fab>
       <Box sx={commonWindowSize}>
         <NewStatPopup open={popupOpen} closeFn={closePopup} />
-        <DragDropContext onDragEnd={handleOnDragEnd}>
-          <Droppable droppableId="statWindowList">
-            {(provided) => (
-              <div {...provided.droppableProps} ref={provided.innerRef}>
-                {windowOrder.map((wd, i) => (
-                  <Draggable key={wd} draggableId={String(i)} index={i}>
-                    {(provided) => (
-                      <div
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        ref={provided.innerRef}
-                      >
-                        <StatWindow name={wd} />
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
+        <DraggableStatWindowList onSortEnd={onSortEnd}>
+          <div>
+            {windowOrder.map((wd, i) => (
+              <DraggableStatWindow key={i} name={wd} index={i} />
+            ))}
+          </div>
+        </DraggableStatWindowList>
       </Box>
     </Fragment>
   );

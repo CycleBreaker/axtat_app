@@ -9,9 +9,9 @@ export function ResolutionContextProvider(props) {
 
   const commonWindowSize = () => {
     return {
-      width: tabletResolution ? 800 : "100%",
+      width: tabletResolution ? "100%" : 800,
       m: "0 auto",
-      marginTop: "64px",
+      marginTop: mobileResolution ? 0 : "64px",
       boxSizing: "border-box",
       p: 2,
     };

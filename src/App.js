@@ -21,6 +21,11 @@ function App() {
     setLightTheme(!isLightTheme);
   }
 
+  //Wrappers
+  function SettingsWrapper() {
+    return <Settings switchTheme={switchTheme} isLightTheme={isLightTheme} />;
+  }
+
   return (
     <ThemeProvider theme={isLightTheme ? lightTheme : darkTheme}>
       <ResolutionContextProvider>
@@ -31,7 +36,7 @@ function App() {
               <Route path="*" element={<Login />} />
               <Route path="/finances" element={<Finances />} />
               <Route path="/statistics" element={<Statistics />} />
-              <Route path="/settings" element={<Settings />} />
+              <Route path="/settings" element={<SettingsWrapper />} />
             </Routes>
           </Menus>
         </BrowserRouter>

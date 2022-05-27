@@ -42,6 +42,11 @@ export const lightTheme = createTheme({
   shape: {
     borderRadius: 16,
   },
+  breakpoints: {
+    values: {
+      sm: 500,
+    },
+  },
   overrides: {
     MuiSwitch: {
       root: {
@@ -118,6 +123,11 @@ export const darkTheme = createTheme({
   },
   shape: {
     borderRadius: 16,
+  },
+  breakpoints: {
+    values: {
+      sm: 500,
+    },
   },
   overrides: {
     MuiSwitch: {

@@ -1,7 +1,8 @@
 import React, { Fragment, useState, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink, useMatch, useNavigate } from "react-router-dom";
 //App Components
 import Footer from "./Footer";
+import Logo from "./Logo";
 //MUI elements
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -27,6 +28,10 @@ import { ResolutionContext } from "./contexts/ResolutionContext";
 
 export default function Menus(props) {
   const { switchTheme, currentTheme } = props;
+  const navigate = useNavigate();
+
+  //Check to hide menus on Login screen
+  const isLoginScreen = useMatch("/");
 
   //Responsiveness
   const { mobileResolution } = useContext(ResolutionContext);
@@ -42,6 +47,14 @@ export default function Menus(props) {
   const closeMenu = () => {
     setAnchorMenu(null);
   };
+  const gotoSettings = () => {
+    closeMenu();
+    navigate("/settings");
+  };
+  const gotoLogout = () => {
+    closeMenu();
+    navigate("/");
+  };
 
   //Bottom menu functions
   const selectCurrentScreen = (e, v) => {
@@ -53,26 +66,36 @@ export default function Menus(props) {
       <Box
         sx={
           mobileResolution
-            ? {
+            ? { display: "none" }
+            : {
                 flexGrow: 1,
                 position: "fixed",
                 top: 0,
                 left: 0,
                 zIndex: 999,
                 width: "100%",
+                display: isLoginScreen ? "none" : null,
               }
-            : { display: "none" }
         }
       >
         <AppBar position="static">
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Logo & Name
+              <Box sx={{ display: "inline-block" }}>
+                <Logo />
+              </Box>
               <Button
                 color="inherit"
                 sx={{ marginLeft: 2 }}
-                component={Link}
+                component={NavLink}
                 to={"/finances"}
+                style={({ isActive }) => {
+                  return {
+                    backgroundColor: isActive
+                      ? "rgba(255, 255, 255, 0.3)"
+                      : null,
+                  };
+                }}
               >
                 <AttachMoneyIcon />
                 Home
@@ -80,8 +103,15 @@ export default function Menus(props) {
               <Button
                 color="inherit"
                 sx={{ marginLeft: 1 }}
-                component={Link}
+                component={NavLink}
                 to={"/statistics"}
+                style={({ isActive }) => {
+                  return {
+                    backgroundColor: isActive
+                      ? "rgba(255, 255, 255, 0.3)"
+                      : null,
+                  };
+                }}
               >
                 <QueryStatsIcon sx={{ marginRight: 1 }} />
                 Stats
@@ -109,10 +139,8 @@ export default function Menus(props) {
                 open={Boolean(anchorMenu)}
                 onClose={closeMenu}
               >
-                <MenuItem component={Link} to={"/settings"}>
-                  Settings
-                </MenuItem>
-                <MenuItem onClick={closeMenu}>Log out</MenuItem>
+                <MenuItem onClick={gotoSettings}>Settings</MenuItem>
+                <MenuItem onClick={gotoLogout}>Log out</MenuItem>
               </Menu>
             </div>
           </Toolbar>
@@ -130,8 +158,15 @@ export default function Menus(props) {
       <Box
         sx={
           mobileResolution
-            ? { display: "none" }
-            : { flexGrow: 1, position: "fixed", bottom: 0, left: 0, right: 0 }
+            ? {
+                flexGrow: 1,
+                position: "fixed",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                display: isLoginScreen ? "none" : null,
+              }
+            : { display: "none" }
         }
       >
         <BottomNavigation
