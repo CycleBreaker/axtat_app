@@ -1,12 +1,21 @@
-import React, { Fragment, useState, useContext } from "react";
+import React, { Fragment, useState, useContext, forwardRef } from "react";
 import "./Finances.css";
 //App Components
 import NewEntryPopup from "./NewEntryPopup";
+import EntryPopup from "./EntryPopup";
 //MUI elements
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Fab from "@mui/material/Fab";
 import Grid from "@mui/material/Grid";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableRow from "@mui/material/TableRow";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import Slide from "@mui/material/Slide";
 //Icons
 import AddIcon from "@mui/icons-material/Add";
 //ChartJS elements
@@ -52,34 +61,170 @@ const tempChartDataObject = {
     { label: "Somethingzzzzz", data: tempChartData2.map((d) => d.thing) },
   ],
 };
-const tempEntryComponent = function (id, year, thing) {
-  return (
-    <Paper key={id} elevation={1} sx={{ m: 1 }}>
-      <div
-        style={{
-          width: "100%",
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-around",
-          boxSizing: "border-box",
-          padding: "5px",
-        }}
-      >
-        <div>{id}</div>
-        <div>{year}</div>
-        <div>{thing}</div>
-      </div>
-    </Paper>
-  );
-};
+const tempTableEntry = [
+  {
+    isSpending: true,
+    id: 1,
+    date: 1647080668,
+    sum: 234,
+    tags: ["Me", "Business", "Woman"],
+    group: "Food",
+    item: "Home-Cooked",
+    source: "",
+    comment: "Home burgers",
+    smiley: "🍗",
+  },
+  {
+    isSpending: true,
+    id: 2,
+    date: 1647253468,
+    sum: 676,
+    tags: ["Me", "Woman"],
+    group: "Presents",
+    item: "Personal",
+    source: "",
+    comment: "Random gift",
+    smiley: "🎁",
+  },
+  {
+    isSpending: true,
+    id: 3,
+    date: 1647339868,
+    sum: 4567,
+    tags: ["Me"],
+    group: "Appearance",
+    item: "Clothing",
+    source: "",
+    comment: "Jacket",
+    smiley: "🧥",
+  },
+  {
+    isSpending: false,
+    id: 4,
+    date: 1647343468,
+    sum: 14000,
+    tags: [],
+    group: "",
+    item: "",
+    source: "Salary",
+    comment: "ETC March",
+    smiley: "💰",
+  },
+  {
+    isSpending: false,
+    id: 5,
+    date: 1647429868,
+    sum: 700,
+    tags: [],
+    group: "",
+    item: "",
+    source: "Tips",
+    comment: "Chernobyl tour",
+    smiley: "💵",
+  },
+  {
+    isSpending: true,
+    id: 6,
+    date: 1647516268,
+    sum: 1243,
+    tags: ["Family"],
+    group: "Food",
+    item: "Home-Cooked",
+    source: "",
+    comment: "Auchan",
+    smiley: "🍗",
+  },
+  {
+    isSpending: true,
+    id: 7,
+    date: 1647534268,
+    sum: 80,
+    tags: ["Me"],
+    group: "Transportation",
+    item: "Taxi",
+    source: "",
+    comment: "",
+    smiley: "🚕",
+  },
+  {
+    isSpending: true,
+    id: 8,
+    date: 1647541468,
+    sum: 276,
+    tags: ["Me"],
+    group: "Substances",
+    item: "Alcohol",
+    source: "",
+    comment: "With Phil",
+    smiley: "🍺",
+  },
+  {
+    isSpending: false,
+    id: 9,
+    date: 1647627868,
+    sum: 27700,
+    tags: [],
+    group: "",
+    item: "",
+    source: "Business",
+    comment: "AT Google",
+    smiley: "💼",
+  },
+  {
+    isSpending: true,
+    id: 10,
+    date: 1647638668,
+    sum: 865435,
+    tags: ["Family"],
+    group: "Purchases",
+    item: "Other",
+    source: "",
+    comment: "New car for dad",
+    smiley: "🛒",
+  },
+];
 
 export default function Finances(props) {
   //Responsiveness
   const { tabletResolution, commonWindowSize } = useContext(ResolutionContext);
   //New Entry popup
-  const [popupOpen, setPopupOpen] = useState(false);
-  const openPopup = () => setPopupOpen(true);
-  const closePopup = () => setPopupOpen(false);
+  const [newEntryPopupOpen, setNewEntryPopupOpen] = useState(false);
+  const openNewEntryPopup = () => setNewEntryPopupOpen(true);
+  const closeNewEntryPopup = () => setNewEntryPopupOpen(false);
+  //Existing entry popup
+  const [currentEntry, setCurrentEntry] = useState(tempTableEntry[0]);
+  const [entryPopupOpen, setEntryPopupOpen] = useState(false);
+  const openEntryPopup = function (entry) {
+    setCurrentEntry(entry);
+    setEntryPopupOpen(true);
+  };
+  const closeEntryPopup = () => setEntryPopupOpen(false);
+
+  //Entry table row component
+  const EntryTableRow = function (props) {
+    const { entry, openEntryPopup } = props;
+
+    const entryClick = function () {
+      openEntryPopup(entry);
+    };
+
+    return (
+      <TableRow onClick={entryClick}>
+        <TableCell scope="row">{entry.smiley}</TableCell>
+        <TableCell
+          sx={entry.isSpending ? null : { fontWeight: "bold", color: "green" }}
+        >
+          {entry.isSpending ? entry.group + " / " + entry.item : entry.source}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={entry.isSpending ? null : { fontWeight: "bold", color: "green" }}
+        >
+          {entry.isSpending ? "-" + entry.sum : "+" + entry.sum}
+        </TableCell>
+      </TableRow>
+    );
+  };
 
   return (
     <Fragment>
@@ -93,13 +238,18 @@ export default function Finances(props) {
           left: "auto",
           position: "fixed",
         }}
-        onClick={openPopup}
+        onClick={openNewEntryPopup}
         className="slide-in-bottom3"
       >
         <AddIcon />
       </Fab>
       <Box sx={commonWindowSize}>
-        <NewEntryPopup open={popupOpen} closeFn={closePopup} />
+        <NewEntryPopup open={newEntryPopupOpen} closeFn={closeNewEntryPopup} />
+        <EntryPopup
+          entry={currentEntry}
+          open={entryPopupOpen}
+          closeFn={closeEntryPopup}
+        />
         <Grid container spacing={1}>
           <Grid item xs={12} sx={{ width: "100%" }}>
             <Paper elevation={3} className="slide-in-bottom">
@@ -110,11 +260,23 @@ export default function Finances(props) {
             </Paper>
           </Grid>
           <Grid item xs={12} sx={{ width: "100%" }}>
-            <Paper elevation={3} xl={12} className="slide-in-bottom2">
-              {tempChartData.map((dt) =>
-                tempEntryComponent(dt.id, dt.year, dt.thing)
-              )}
-            </Paper>
+            <TableContainer
+              component={Paper}
+              elevation={3}
+              className="slide-in-bottom2"
+            >
+              <Table>
+                <TableBody>
+                  {tempTableEntry.map((entry) => (
+                    <EntryTableRow
+                      key={entry.id}
+                      entry={entry}
+                      openEntryPopup={openEntryPopup}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </Grid>
         </Grid>
       </Box>

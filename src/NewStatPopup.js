@@ -109,6 +109,8 @@ export default function NewStatPopup(props) {
         open={calendarOpen}
         TransitionComponent={ZoomTransition}
         keepMounted
+        mountOnEnter
+        unmountOnExit
         onClose={closeCalendar}
         sx={{ zIndex: 2000 }}
       >
