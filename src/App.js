@@ -13,6 +13,7 @@ import Settings from "./Settings";
 import { lightTheme, darkTheme } from "./themes";
 //Context providers
 import { ResolutionContextProvider } from "./contexts/ResolutionContext";
+import { ThemeContextProvider } from "./contexts/ThemeContext";
 
 function App() {
   //Theming

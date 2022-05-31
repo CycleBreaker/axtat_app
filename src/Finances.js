@@ -3,6 +3,8 @@ import "./Finances.css";
 //App Components
 import NewEntryPopup from "./NewEntryPopup";
 import EntryPopup from "./EntryPopup";
+//Helpers
+import { lightTheme, darkTheme } from "./themes";
 //MUI elements
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
@@ -13,9 +15,6 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import Dialog from "@mui/material/Dialog";
-import DialogContent from "@mui/material/DialogContent";
-import Slide from "@mui/material/Slide";
 //Icons
 import AddIcon from "@mui/icons-material/Add";
 //ChartJS elements
