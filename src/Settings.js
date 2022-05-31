@@ -19,10 +19,12 @@ import CreditCardIcon from "@mui/icons-material/CreditCard";
 import AddCardIcon from "@mui/icons-material/AddCard";
 //Contexts
 import { ResolutionContext } from "./contexts/ResolutionContext";
+import { ThemeContext } from "./contexts/ThemeContext";
 
-export default function Settings(props) {
-  const { switchTheme, isLightTheme } = props;
+export default function Settings() {
+  //Contexts
   const { mobileResolution, commonWindowSize } = useContext(ResolutionContext);
+  const { isLightTheme, switchTheme } = useContext(ThemeContext);
 
   //Menu components
   const MyDivider = () => <Divider variant="middle" sx={{ mb: 4 }} />;

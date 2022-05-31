@@ -22,27 +22,22 @@ function App() {
     setLightTheme(!isLightTheme);
   }
 
-  //Wrappers
-  function SettingsWrapper() {
-    return <Settings switchTheme={switchTheme} isLightTheme={isLightTheme} />;
-  }
-
   return (
-    <ThemeProvider theme={isLightTheme ? lightTheme : darkTheme}>
+    <ThemeContextProvider>
       <ResolutionContextProvider>
         <CssBaseline />
         <BrowserRouter>
-          <Menus switchTheme={switchTheme} currentTheme={isLightTheme}>
+          <Menus>
             <Routes>
               <Route path="*" element={<Login />} />
               <Route path="/finances" element={<Finances />} />
               <Route path="/statistics" element={<Statistics />} />
-              <Route path="/settings" element={<SettingsWrapper />} />
+              <Route path="/settings" element={<Settings />} />
             </Routes>
           </Menus>
         </BrowserRouter>
       </ResolutionContextProvider>
-    </ThemeProvider>
+    </ThemeContextProvider>
   );
 }
 

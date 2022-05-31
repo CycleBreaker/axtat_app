@@ -25,10 +25,13 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import { Scrollbars } from "react-custom-scrollbars-2";
 //Contexts
 import { ResolutionContext } from "./contexts/ResolutionContext";
+import { ThemeContext } from "./contexts/ThemeContext";
 
 export default function Menus(props) {
-  const { switchTheme, currentTheme } = props;
   const navigate = useNavigate();
+
+  //Contexts
+  const { isLightTheme, switchTheme } = useContext(ThemeContext);
 
   //Check to hide menus on Login screen
   const isLoginScreen = useMatch("/");
@@ -118,7 +121,7 @@ export default function Menus(props) {
               </Button>
             </Typography>
             <IconButton size="large" color="inherit" onClick={switchTheme}>
-              {currentTheme ? <DarkModeIcon /> : <LightModeIcon />}
+              {isLightTheme ? <DarkModeIcon /> : <LightModeIcon />}
             </IconButton>
             <div>
               <IconButton size="large" onClick={openMenu} color="inherit">

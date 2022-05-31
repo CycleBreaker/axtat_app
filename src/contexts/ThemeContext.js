@@ -1,6 +1,8 @@
-import React, { createContext } from "react";
+import React, { useState, createContext } from "react";
+//MUI elements
+import { ThemeProvider } from "@mui/material/styles";
 //Helpers
-import { lightTheme, darkTheme } from "./themes";
+import { lightTheme, darkTheme } from "../themes";
 
 export const ThemeContext = createContext();
 
@@ -14,7 +16,9 @@ export function ThemeContextProvider(props) {
     <ThemeContext.Provider
       value={{ isLightTheme, switchTheme, lightTheme, darkTheme }}
     >
-      {props.children}
+      <ThemeProvider theme={isLightTheme ? lightTheme : darkTheme}>
+        {props.children}
+      </ThemeProvider>
     </ThemeContext.Provider>
   );
 }
