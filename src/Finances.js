@@ -3,8 +3,6 @@ import "./Finances.css";
 //App Components
 import NewEntryPopup from "./NewEntryPopup";
 import EntryPopup from "./EntryPopup";
-//Helpers
-import { lightTheme, darkTheme } from "./themes";
 //MUI elements
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
@@ -22,6 +20,7 @@ import { Line } from "react-chartjs-2";
 import { Chart } from "chart.js/auto";
 //Contexts
 import { ResolutionContext } from "./contexts/ResolutionContext";
+import { ThemeContext } from "./contexts/ThemeContext";
 
 //Temporary boilerplate stuff
 const tempChartData = [
@@ -186,6 +185,8 @@ const tempTableEntry = [
 export default function Finances(props) {
   //Responsiveness
   const { tabletResolution, commonWindowSize } = useContext(ResolutionContext);
+  //Theming
+  const { isLightTheme, lightTheme, darkTheme } = useContext(ThemeContext);
   //New Entry popup
   const [newEntryPopupOpen, setNewEntryPopupOpen] = useState(false);
   const openNewEntryPopup = () => setNewEntryPopupOpen(true);
@@ -211,13 +212,31 @@ export default function Finances(props) {
       <TableRow onClick={entryClick}>
         <TableCell scope="row">{entry.smiley}</TableCell>
         <TableCell
-          sx={entry.isSpending ? null : { fontWeight: "bold", color: "green" }}
+          sx={
+            entry.isSpending
+              ? null
+              : {
+                  fontWeight: "bold",
+                  color: isLightTheme
+                    ? lightTheme.palette.success.main
+                    : darkTheme.palette.success.main,
+                }
+          }
         >
           {entry.isSpending ? entry.group + " / " + entry.item : entry.source}
         </TableCell>
         <TableCell
           align="right"
-          sx={entry.isSpending ? null : { fontWeight: "bold", color: "green" }}
+          sx={
+            entry.isSpending
+              ? null
+              : {
+                  fontWeight: "bold",
+                  color: isLightTheme
+                    ? lightTheme.palette.success.main
+                    : darkTheme.palette.success.main,
+                }
+          }
         >
           {entry.isSpending ? "-" + entry.sum : "+" + entry.sum}
         </TableCell>

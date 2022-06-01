@@ -1,4 +1,6 @@
-import React, { Fragment, forwardRef, useState } from "react";
+import React, { Fragment, forwardRef, useState, useContext } from "react";
+//Contexts
+import { ThemeContext } from "./contexts/ThemeContext";
 //MUI elements
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
@@ -97,6 +99,8 @@ function TempTable() {
 
 export default function NewStatPopup(props) {
   const { open, closeFn } = props;
+  //Theming
+  const { isLightTheme } = useContext(ThemeContext);
 
   //Calendar functionality
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -114,7 +118,15 @@ export default function NewStatPopup(props) {
         onClose={closeCalendar}
         sx={{ zIndex: 2000 }}
       >
-        <Calendar selectRange />
+        <Calendar
+          selectRange
+          maxDate={new Date()}
+          className={
+            isLightTheme
+              ? null
+              : "react-calendar-dark react-calendar-dark__navigation react-calendar-dark__navigation button:enabled:hover react-calendar-dark__navigation button:enabled:focus react-calendar-dark__month-view__days__day--weekend react-calendar-dark__month-view__days__day--neighboringMonth react-calendar-dark__tile:disabled react-calendar-dark__tile:enabled:hover react-calendar-dark__tile:enabled:focus react-calendar-dark__tile--now react-calendar-dark__tile--now:enabled:hover react-calendar-dark__tile--now:enabled:focus react-calendar-dark__tile--hasActive react-calendar-dark__tile--hasActive:enabled:hover react-calendar-dark__tile--hasActive:enabled:focus react-calendar-dark__tile--active react-calendar-dark__tile--active:enabled:hover react-calendar-dark__tile--active:enabled:focus react-calendar-dark--selectRange react-calendar__tile--hover"
+          }
+        />
       </Dialog>
       <Dialog
         open={open}

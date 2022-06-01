@@ -56,7 +56,7 @@ export default function NewEntryPopup(props) {
         onClose={closeCalendar}
         sx={{ zIndex: 2000 }}
       >
-        <Calendar selectRange />
+        <Calendar maxDate={new Date()} />
       </Dialog>
       <Dialog
         open={open}
