@@ -1,8 +1,13 @@
-import React, { Fragment, useState, useContext, forwardRef } from "react";
+import React, { Fragment, useState, useContext, memo } from "react";
 import "./Finances.css";
 //App Components
 import NewEntryPopup from "./NewEntryPopup";
 import EntryPopup from "./EntryPopup";
+//Contexts
+import { ResolutionContext } from "./contexts/ResolutionContext";
+import { ThemeContext } from "./contexts/ThemeContext";
+import { TransitionContext } from "./contexts/TransitionContext";
+import { SettingsContext } from "./contexts/SettingsContext";
 //MUI elements
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
@@ -18,9 +23,8 @@ import AddIcon from "@mui/icons-material/Add";
 //ChartJS elements
 import { Line } from "react-chartjs-2";
 import { Chart } from "chart.js/auto";
-//Contexts
-import { ResolutionContext } from "./contexts/ResolutionContext";
-import { ThemeContext } from "./contexts/ThemeContext";
+//Transition animation
+import { motion } from "framer-motion";
 
 //Temporary boilerplate stuff
 const tempChartData = [
@@ -172,7 +176,7 @@ const tempTableEntry = [
     isSpending: true,
     id: 10,
     date: 1647638668,
-    sum: 865435,
+    sum: 8654358,
     tags: ["Family"],
     group: "Purchases",
     item: "Other",
@@ -182,11 +186,12 @@ const tempTableEntry = [
   },
 ];
 
-export default function Finances(props) {
-  //Responsiveness
+function Finances(props) {
+  //Contexts
   const { tabletResolution, commonWindowSize } = useContext(ResolutionContext);
-  //Theming
   const { isLightTheme, lightTheme, darkTheme } = useContext(ThemeContext);
+  const { transition } = useContext(TransitionContext);
+  const { chosenCurrency } = useContext(SettingsContext);
   //New Entry popup
   const [newEntryPopupOpen, setNewEntryPopupOpen] = useState(false);
   const openNewEntryPopup = () => setNewEntryPopupOpen(true);
@@ -238,7 +243,9 @@ export default function Finances(props) {
                 }
           }
         >
-          {entry.isSpending ? "-" + entry.sum : "+" + entry.sum}
+          {entry.isSpending
+            ? "-" + entry.sum + chosenCurrency.symbol
+            : "+" + entry.sum + chosenCurrency.symbol}
         </TableCell>
       </TableRow>
     );
@@ -261,43 +268,54 @@ export default function Finances(props) {
       >
         <AddIcon />
       </Fab>
-      <Box sx={commonWindowSize}>
-        <NewEntryPopup open={newEntryPopupOpen} closeFn={closeNewEntryPopup} />
-        <EntryPopup
-          entry={currentEntry}
-          open={entryPopupOpen}
-          closeFn={closeEntryPopup}
-        />
-        <Grid container spacing={1}>
-          <Grid item xs={12} sx={{ width: "100%" }}>
-            <Paper elevation={3} className="slide-in-bottom">
-              <Box sx={{ p: 2 }}>
-                <Box sx={{ textAlign: "right" }}>9 May 2022 - 9 May 2023</Box>
-                <Line data={tempChartDataObject} options={{ scale: 0.5 }} />
-              </Box>
-            </Paper>
+      <motion.div
+        initial={transition.initial}
+        animate={transition.animate}
+        exit={transition.exit}
+      >
+        <Box sx={commonWindowSize}>
+          <NewEntryPopup
+            open={newEntryPopupOpen}
+            closeFn={closeNewEntryPopup}
+          />
+          <EntryPopup
+            entry={currentEntry}
+            open={entryPopupOpen}
+            closeFn={closeEntryPopup}
+          />
+          <Grid container spacing={1}>
+            <Grid item xs={12} sx={{ width: "100%" }}>
+              <Paper elevation={3} className="slide-in-bottom">
+                <Box sx={{ p: 2 }}>
+                  <Box sx={{ textAlign: "right" }}>9 May 2022 - 9 May 2023</Box>
+                  <Line data={tempChartDataObject} options={{ scale: 0.5 }} />
+                </Box>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} sx={{ width: "100%" }}>
+              <TableContainer
+                component={Paper}
+                elevation={3}
+                className="slide-in-bottom2"
+              >
+                <Table>
+                  <TableBody>
+                    {tempTableEntry.map((entry) => (
+                      <EntryTableRow
+                        key={entry.id}
+                        entry={entry}
+                        openEntryPopup={openEntryPopup}
+                      />
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sx={{ width: "100%" }}>
-            <TableContainer
-              component={Paper}
-              elevation={3}
-              className="slide-in-bottom2"
-            >
-              <Table>
-                <TableBody>
-                  {tempTableEntry.map((entry) => (
-                    <EntryTableRow
-                      key={entry.id}
-                      entry={entry}
-                      openEntryPopup={openEntryPopup}
-                    />
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Grid>
-        </Grid>
-      </Box>
+        </Box>
+      </motion.div>
     </Fragment>
   );
 }
+
+export default memo(Finances);

@@ -9,6 +9,7 @@ import Chip from "@mui/material/Chip";
 import Box from "@mui/material/Box";
 //Contexts
 import { ResolutionContext } from "./contexts/ResolutionContext";
+import { SettingsContext } from "./contexts/SettingsContext";
 
 //Transition animation
 const ZoomTransition = forwardRef(function SlideTransition(props, ref) {
@@ -18,6 +19,7 @@ const ZoomTransition = forwardRef(function SlideTransition(props, ref) {
 export default function EntryPopup(props) {
   const { open, closeFn, entry } = props;
   const { mobileResolution } = useContext(ResolutionContext);
+  const { chosenCurrency } = useContext(SettingsContext);
 
   const dateFormat = {
     hour: "numeric",
@@ -117,13 +119,15 @@ export default function EntryPopup(props) {
         <Divider sx={{ mt: 1, mb: 1 }}>
           <Chip label={entry.isSpending ? "Spending" : "Income"} />
         </Divider>
-        <Typography variant="h3">
+        <Typography variant="h4">
           {entry.isSpending ? entry.group : entry.source}
         </Typography>
         {entry.isSpending ? (
-          <Typography variant="h4">{entry.item}</Typography>
+          <Typography variant="h5">{entry.item}</Typography>
         ) : null}
-        <Typography variant="h2">{entry.sum}</Typography>
+        <Typography variant="h3">
+          {entry.sum + chosenCurrency.symbol}
+        </Typography>
         <Box
           sx={{
             display: "flex",

@@ -1,4 +1,6 @@
-import React, { Fragment, forwardRef, useState } from "react";
+import React, { Fragment, forwardRef, useState, useContext } from "react";
+//Contexts
+import { ThemeContext } from "./contexts/ThemeContext";
 //MUI elements
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
@@ -36,6 +38,8 @@ const formSpacing = {
 
 export default function NewEntryPopup(props) {
   const { open, closeFn } = props;
+  //Theming
+  const { isLightTheme } = useContext(ThemeContext);
 
   //Entry mode
   const [spendingMode, setSpendingMode] = useState(true);
@@ -56,7 +60,14 @@ export default function NewEntryPopup(props) {
         onClose={closeCalendar}
         sx={{ zIndex: 2000 }}
       >
-        <Calendar maxDate={new Date()} />
+        <Calendar
+          maxDate={new Date()}
+          className={
+            isLightTheme
+              ? null
+              : "react-calendar-dark react-calendar-dark__navigation react-calendar-dark__navigation button:enabled:hover react-calendar-dark__navigation button:enabled:focus react-calendar-dark__month-view__days__day--weekend react-calendar-dark__month-view__days__day--neighboringMonth react-calendar-dark__tile:disabled react-calendar-dark__tile:enabled:hover react-calendar-dark__tile:enabled:focus react-calendar-dark__tile--now react-calendar-dark__tile--now:enabled:hover react-calendar-dark__tile--now:enabled:focus react-calendar-dark__tile--hasActive react-calendar-dark__tile--hasActive:enabled:hover react-calendar-dark__tile--hasActive:enabled:focus react-calendar-dark__tile--active react-calendar-dark__tile--active:enabled:hover react-calendar-dark__tile--active:enabled:focus react-calendar-dark--selectRange react-calendar__tile--hover"
+          }
+        />
       </Dialog>
       <Dialog
         open={open}
@@ -91,7 +102,11 @@ export default function NewEntryPopup(props) {
                   Pick date
                 </Button>
               </Stack>
-              <TextField label="Sum" variant="outlined" />
+              <TextField
+                label="Sum"
+                variant="outlined"
+                inputProps={{ maxLength: 7 }}
+              />
               <div style={spendingMode ? formSpacing : { display: "none" }}>
                 <Autocomplete
                   multiple
@@ -139,7 +154,12 @@ export default function NewEntryPopup(props) {
                 )}
                 sx={spendingMode ? { display: "none" } : null}
               />
-              <TextField label="Notes" fullWidth variant="outlined" />
+              <TextField
+                label="Notes"
+                fullWidth
+                variant="outlined"
+                inputProps={{ maxLength: 75 }}
+              />
               <Button
                 type="submit"
                 size="large"

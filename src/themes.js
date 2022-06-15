@@ -120,6 +120,11 @@ export const darkTheme = createTheme({
       dark: "#58EE99",
       contrastText: "#C9ACF2",
     },
+    info: {
+      main: "#EBFFFF",
+      light: "#d6ffff",
+      dark: "#c2ffff",
+    },
   },
   shape: {
     borderRadius: 16,

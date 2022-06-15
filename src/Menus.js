@@ -1,8 +1,13 @@
-import React, { Fragment, useState, useContext } from "react";
+import React, { Fragment, useState, useContext, memo } from "react";
 import { Link, NavLink, useMatch, useNavigate } from "react-router-dom";
 //App Components
 import Footer from "./Footer";
 import Logo from "./Logo";
+import { navLinkBgColorLight, navLinkBgColorDark } from "./config";
+//Contexts
+import { ResolutionContext } from "./contexts/ResolutionContext";
+import { ThemeContext } from "./contexts/ThemeContext";
+import { TransitionContext } from "./contexts/TransitionContext";
 //MUI elements
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -23,15 +28,13 @@ import LightModeIcon from "@mui/icons-material/LightMode";
 import SettingsIcon from "@mui/icons-material/Settings";
 //Custom scrollbar
 import { Scrollbars } from "react-custom-scrollbars-2";
-//Contexts
-import { ResolutionContext } from "./contexts/ResolutionContext";
-import { ThemeContext } from "./contexts/ThemeContext";
 
-export default function Menus(props) {
+function Menus(props) {
   const navigate = useNavigate();
 
   //Contexts
   const { isLightTheme, switchTheme } = useContext(ThemeContext);
+  const { pageDirection } = useContext(TransitionContext);
 
   //Check to hide menus on Login screen
   const isLoginScreen = useMatch("/");
@@ -43,16 +46,25 @@ export default function Menus(props) {
   const [anchorMenu, setAnchorMenu] = useState(null); //Opens top menu
   const [currentScreen, setCurrentScreen] = useState(0); //Selects screen in the bottom
 
+  //Navigation
+  const gotoFinances = () => {
+    pageDirection(1);
+  };
+  const gotoStatistics = () => {
+    pageDirection(2);
+  };
+  const gotoSettings = () => {
+    pageDirection(3);
+    closeMenu();
+    navigate("/settings");
+  };
+
   //Top menu functions
   const openMenu = (event) => {
     setAnchorMenu(event.currentTarget);
   };
   const closeMenu = () => {
     setAnchorMenu(null);
-  };
-  const gotoSettings = () => {
-    closeMenu();
-    navigate("/settings");
   };
   const gotoLogout = () => {
     closeMenu();
@@ -92,10 +104,13 @@ export default function Menus(props) {
                 sx={{ marginLeft: 2 }}
                 component={NavLink}
                 to={"/finances"}
+                onClick={gotoFinances}
                 style={({ isActive }) => {
                   return {
                     backgroundColor: isActive
-                      ? "rgba(255, 255, 255, 0.3)"
+                      ? isLightTheme
+                        ? navLinkBgColorLight
+                        : navLinkBgColorDark
                       : null,
                   };
                 }}
@@ -108,10 +123,13 @@ export default function Menus(props) {
                 sx={{ marginLeft: 1 }}
                 component={NavLink}
                 to={"/statistics"}
+                onClick={gotoStatistics}
                 style={({ isActive }) => {
                   return {
                     backgroundColor: isActive
-                      ? "rgba(255, 255, 255, 0.3)"
+                      ? isLightTheme
+                        ? navLinkBgColorLight
+                        : navLinkBgColorDark
                       : null,
                   };
                 }}
@@ -182,21 +200,24 @@ export default function Menus(props) {
             icon={<AttachMoneyIcon />}
             component={Link}
             to={"/finances"}
+            onClick={gotoFinances}
           />
           <BottomNavigationAction
             label="Stats"
             icon={<QueryStatsIcon />}
             component={Link}
             to={"/statistics"}
+            onClick={gotoStatistics}
           />
           <BottomNavigationAction
             label="Settings"
             icon={<SettingsIcon />}
-            component={Link}
-            to={"/settings"}
+            onClick={gotoSettings}
           />
         </BottomNavigation>
       </Box>
     </Fragment>
   );
 }
+
+export default memo(Menus);
