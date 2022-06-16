@@ -53,9 +53,6 @@ export default function DbElementPopup(props) {
       <Dialog
         open={smileyPickerOpen}
         TransitionComponent={ZoomTransition}
-        keepMounted
-        mountOnEnter
-        unmountOnExit
         onClose={closeSmileyPicker}
         sx={{ zIndex: 2000 }}
       >
@@ -64,9 +61,6 @@ export default function DbElementPopup(props) {
       <Dialog
         open={colorPickerOpen}
         TransitionComponent={ZoomTransition}
-        keepMounted
-        mountOnEnter
-        unmountOnExit
         onClose={closeColorPicker}
         sx={{ zIndex: 2000 }}
       >
@@ -78,7 +72,6 @@ export default function DbElementPopup(props) {
       <Dialog
         open={isOpen}
         TransitionComponent={SlideTransition}
-        keepMounted
         onClose={close}
       >
         <Box sx={{ p: 2 }}>

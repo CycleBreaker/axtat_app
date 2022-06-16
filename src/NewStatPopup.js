@@ -112,9 +112,6 @@ export default function NewStatPopup(props) {
       <Dialog
         open={calendarOpen}
         TransitionComponent={ZoomTransition}
-        keepMounted
-        mountOnEnter
-        unmountOnExit
         onClose={closeCalendar}
         sx={{ zIndex: 2000 }}
       >
@@ -131,7 +128,6 @@ export default function NewStatPopup(props) {
       <Dialog
         open={open}
         TransitionComponent={SlideTransition}
-        keepMounted
         onClose={closeFn}
       >
         <Box sx={{ p: 2 }}>

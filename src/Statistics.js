@@ -1,4 +1,5 @@
 import React, { Fragment, useContext, useState, memo } from "react";
+import { TransitionGroup } from "react-transition-group";
 //App components
 import StatWindow from "./StatWindow";
 import NewStatPopup from "./NewStatPopup";
@@ -8,6 +9,7 @@ import { TransitionContext } from "./contexts/TransitionContext";
 //MUI elements
 import Fab from "@mui/material/Fab";
 import Box from "@mui/material/Box";
+import Collapse from "@mui/material/Collapse";
 //Icons
 import AddIcon from "@mui/icons-material/Add";
 //Drag and Drop

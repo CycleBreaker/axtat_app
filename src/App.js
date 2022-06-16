@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { BrowserRouter } from "react-router-dom";
 //MUI elements
 import CssBaseline from "@mui/material/CssBaseline";
@@ -12,12 +12,6 @@ import { TransitionContextProvider } from "./contexts/TransitionContext";
 import { SettingsContextProvider } from "./contexts/SettingsContext";
 
 function App() {
-  //Theming
-  const [isLightTheme, setLightTheme] = useState(true);
-  function switchTheme() {
-    setLightTheme(!isLightTheme);
-  }
-
   return (
     <ThemeContextProvider>
       <SettingsContextProvider>

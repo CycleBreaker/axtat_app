@@ -32,6 +32,106 @@ import { motion } from "framer-motion";
 //Currency list
 import { currencies } from "./config";
 
+//Menu components
+const MyDivider = () => <Divider variant="middle" sx={{ mb: 4 }} />;
+
+const MyBox = (prps) => (
+  <Box
+    sx={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      gap: "10px",
+      p: "0 10px",
+    }}
+  >
+    {prps.children}
+  </Box>
+);
+
+const DeleteButtonSubComponent = function (prps) {
+  const setDeleteElements = function () {
+    setItemToDelete({ item: prps.element, itemType: prps.elementType });
+    openDeletePopup();
+  };
+  return (
+    <IconButton
+      onClick={setDeleteElements}
+      element={prps.element}
+      elementType={prps.elementType}
+    >
+      <DeleteIcon color={prps.isLightTheme ? "primary" : "info"} />
+    </IconButton>
+  );
+};
+
+const ElementEditRow = (prps) => (
+  <Grid container spacing={2} sx={{ position: "relative", pb: 2 }}>
+    <Grid
+      item
+      xs={12}
+      sm={4}
+      sx={
+        prps.mobileResolution
+          ? { textAlign: "center", width: "100%" }
+          : { pl: 2, width: "100%" }
+      }
+    >
+      <Typography variant="h6">{prps.title}</Typography>
+    </Grid>
+    <Grid
+      item
+      xs={6}
+      sm={4}
+      sx={
+        prps.mobileResolution
+          ? { width: "50%", textAlign: "center" }
+          : { textAlign: "center" }
+      }
+    >
+      <Select value={prps.list[1]} sx={{ transform: "translateY(-10px)" }}>
+        {prps.list.map((tg) => (
+          <MenuItem key={tg} value={tg}>
+            {tg}
+          </MenuItem>
+        ))}
+      </Select>
+    </Grid>
+    <Grid
+      item
+      xs={6}
+      sm={4}
+      sx={
+        prps.mobileResolution
+          ? {
+              width: "50%",
+              display: "flex",
+              justifyContent: "space-around",
+              transform: "translateY(-10px)",
+            }
+          : {
+              position: "absolute",
+              right: 0,
+            }
+      }
+    >
+      <Stack direction="row" spacing={1}>
+        <IconButton onClick={prps.openDbElementPopup}>
+          <AddBoxIcon color={prps.isLightTheme ? "primary" : "info"} />
+        </IconButton>
+        <IconButton onClick={prps.openDbElementPopup}>
+          <EditIcon color={prps.isLightTheme ? "primary" : "info"} />
+        </IconButton>
+        <DeleteButtonSubComponent
+          elementType={prps.title.slice(0, -1)}
+          element={prps.selectedElements[prps.title.slice(0, -1).toLowerCase()]}
+          isLightTheme={prps.isLightTheme}
+        />
+      </Stack>
+    </Grid>
+  </Grid>
+);
+
 function Settings() {
   //Contexts
   const { mobileResolution, commonWindowSize } = useContext(ResolutionContext);
@@ -70,106 +170,6 @@ function Settings() {
     elementType: "Group",
     elementName: "Food",
   };
-
-  //Menu components
-  const MyDivider = () => <Divider variant="middle" sx={{ mb: 4 }} />;
-
-  const MyBox = (prps) => (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "10px",
-        p: "0 10px",
-      }}
-    >
-      {prps.children}
-    </Box>
-  );
-
-  const DeleteButtonSubComponent = function (prps) {
-    const setDeleteElements = function () {
-      setItemToDelete({ item: prps.element, itemType: prps.elementType });
-      openDeletePopup();
-    };
-    return (
-      <IconButton
-        onClick={setDeleteElements}
-        element={prps.element}
-        elementType={prps.elementType}
-      >
-        <DeleteIcon color={isLightTheme ? "primary" : "info"} />
-      </IconButton>
-    );
-  };
-
-  const ElementEditRow = (prps) => (
-    <Grid container spacing={2} sx={{ position: "relative", pb: 2 }}>
-      <Grid
-        item
-        xs={12}
-        sm={4}
-        sx={
-          mobileResolution
-            ? { textAlign: "center", width: "100%" }
-            : { pl: 2, width: "100%" }
-        }
-      >
-        <Typography variant="h6">{prps.title}</Typography>
-      </Grid>
-      <Grid
-        item
-        xs={6}
-        sm={4}
-        sx={
-          mobileResolution
-            ? { width: "50%", textAlign: "center" }
-            : { textAlign: "center" }
-        }
-      >
-        <Select value={prps.list[1]} sx={{ transform: "translateY(-10px)" }}>
-          {prps.list.map((tg) => (
-            <MenuItem value={tg}>{tg}</MenuItem>
-          ))}
-        </Select>
-      </Grid>
-      <Grid
-        item
-        xs={6}
-        sm={4}
-        sx={
-          mobileResolution
-            ? {
-                width: "50%",
-                display: "flex",
-                justifyContent: "space-around",
-                transform: "translateY(-10px)",
-              }
-            : {
-                position: "absolute",
-                right: 0,
-              }
-        }
-      >
-        <Stack direction="row" spacing={1}>
-          <IconButton onClick={openDbElementPopup}>
-            <AddBoxIcon color={isLightTheme ? "primary" : "info"} />
-          </IconButton>
-          <IconButton onClick={openDbElementPopup}>
-            <EditIcon color={isLightTheme ? "primary" : "info"} />
-          </IconButton>
-          <DeleteButtonSubComponent
-            elementType={prps.title.slice(0, -1)}
-            element={selectedElements[prps.title.slice(0, -1).toLowerCase()]}
-          />
-        </Stack>
-      </Grid>
-    </Grid>
-  );
-
-  const test = Object.values(currencies).map((val) => val.name);
-  console.log(test);
 
   return (
     <motion.div
@@ -225,7 +225,7 @@ function Settings() {
                   (val) => `${val.name} (${val.symbol})`
                 )}
                 fullWidth
-                value={chosenCurrency.name}
+                value={`${chosenCurrency.name} (${chosenCurrency.symbol})`}
                 renderInput={(params) => (
                   <TextField {...params} label="Currency" />
                 )}
@@ -238,9 +238,30 @@ function Settings() {
           </Stack>
           <MyDivider />
           <MyBox>
-            <ElementEditRow title="Tags" list={tempTags} />
-            <ElementEditRow title="Groups" list={tempGroups} />
-            <ElementEditRow title="Items" list={tempItems} />
+            <ElementEditRow
+              title="Tags"
+              list={tempTags}
+              mobileResolution={mobileResolution}
+              openDbElementPopup={openDbElementPopup}
+              isLightTheme={isLightTheme}
+              selectedElements={selectedElements}
+            />
+            <ElementEditRow
+              title="Groups"
+              list={tempGroups}
+              mobileResolution={mobileResolution}
+              openDbElementPopup={openDbElementPopup}
+              isLightTheme={isLightTheme}
+              selectedElements={selectedElements}
+            />
+            <ElementEditRow
+              title="Items"
+              list={tempItems}
+              mobileResolution={mobileResolution}
+              openDbElementPopup={openDbElementPopup}
+              isLightTheme={isLightTheme}
+              selectedElements={selectedElements}
+            />
           </MyBox>
           <Stack direction="row" sx={{ ml: 2, pt: 3 }}>
             <AddCardIcon sx={{ transform: "translate(-4px, 4px)" }} />
@@ -248,7 +269,14 @@ function Settings() {
           </Stack>
           <MyDivider />
           <MyBox>
-            <ElementEditRow title="Sources" list={tempSources} />
+            <ElementEditRow
+              title="Sources"
+              list={tempSources}
+              mobileResolution={mobileResolution}
+              openDbElementPopup={openDbElementPopup}
+              isLightTheme={isLightTheme}
+              selectedElements={selectedElements}
+            />
           </MyBox>
         </Paper>
       </Box>

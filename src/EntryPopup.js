@@ -16,6 +16,26 @@ const ZoomTransition = forwardRef(function SlideTransition(props, ref) {
   return <Zoom ref={ref} {...props} />;
 });
 
+//Tag CSS
+const Tag = function (prps) {
+  return (
+    <div
+      style={{
+        backgroundColor: prps.color,
+        display: "inline-block",
+        textAlign: "right",
+        padding: "5px",
+        paddingLeft: "25px",
+        margin: "5px",
+        borderRadius: "100px 20px 20px 100px",
+        transform: "scale(0.8)",
+      }}
+    >
+      {prps.tag}
+    </div>
+  );
+};
+
 export default function EntryPopup(props) {
   const { open, closeFn, entry } = props;
   const { mobileResolution } = useContext(ResolutionContext);
@@ -64,35 +84,11 @@ export default function EntryPopup(props) {
   };
   */
 
-  const Tag = function (prps) {
-    return (
-      <div
-        style={{
-          backgroundColor: prps.color,
-          display: "inline-block",
-          textAlign: "right",
-          padding: "5px",
-          paddingLeft: "25px",
-          margin: "5px",
-          borderRadius: "100px 20px 20px 100px",
-          transform: "scale(0.8)",
-        }}
-      >
-        {prps.tag}
-      </div>
-    );
-  };
-
   //Temporary tag colors
   const tempTagColors = ["#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"];
 
   return (
-    <Dialog
-      open={open}
-      TransitionComponent={ZoomTransition}
-      keepMounted
-      onClose={closeFn}
-    >
+    <Dialog open={open} TransitionComponent={ZoomTransition} onClose={closeFn}>
       <DialogContent sx={{ textAlign: "center" }}>
         <div
           style={{

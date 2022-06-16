@@ -1,5 +1,6 @@
 import React, { Fragment, useState, useContext, memo } from "react";
 import "./Finances.css";
+import { TransitionGroup } from "react-transition-group";
 //App Components
 import NewEntryPopup from "./NewEntryPopup";
 import EntryPopup from "./EntryPopup";
@@ -18,6 +19,7 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
+import Collapse from "@mui/material/Collapse";
 //Icons
 import AddIcon from "@mui/icons-material/Add";
 //ChartJS elements
@@ -186,10 +188,56 @@ const tempTableEntry = [
   },
 ];
 
+//Entry table row component
+const EntryTableRow = function (props) {
+  const { entry, openEntryPopup, chosenCurrency } = props;
+  const { isLightTheme, lightTheme, darkTheme } = useContext(ThemeContext);
+
+  const entryClick = function () {
+    openEntryPopup(entry);
+  };
+
+  return (
+    <TableRow onClick={entryClick} sx={{ width: "100%" }}>
+      <TableCell scope="row">{entry.smiley}</TableCell>
+      <TableCell
+        sx={
+          entry.isSpending
+            ? null
+            : {
+                fontWeight: "bold",
+                color: isLightTheme
+                  ? lightTheme.palette.success.main
+                  : darkTheme.palette.success.main,
+              }
+        }
+      >
+        {entry.isSpending ? entry.group + " / " + entry.item : entry.source}
+      </TableCell>
+      <TableCell
+        align="right"
+        sx={
+          entry.isSpending
+            ? null
+            : {
+                fontWeight: "bold",
+                color: isLightTheme
+                  ? lightTheme.palette.success.main
+                  : darkTheme.palette.success.main,
+              }
+        }
+      >
+        {entry.isSpending
+          ? "-" + entry.sum + chosenCurrency.symbol
+          : "+" + entry.sum + chosenCurrency.symbol}
+      </TableCell>
+    </TableRow>
+  );
+};
+
 function Finances(props) {
   //Contexts
   const { tabletResolution, commonWindowSize } = useContext(ResolutionContext);
-  const { isLightTheme, lightTheme, darkTheme } = useContext(ThemeContext);
   const { transition } = useContext(TransitionContext);
   const { chosenCurrency } = useContext(SettingsContext);
   //New Entry popup
@@ -204,52 +252,6 @@ function Finances(props) {
     setEntryPopupOpen(true);
   };
   const closeEntryPopup = () => setEntryPopupOpen(false);
-
-  //Entry table row component
-  const EntryTableRow = function (props) {
-    const { entry, openEntryPopup } = props;
-
-    const entryClick = function () {
-      openEntryPopup(entry);
-    };
-
-    return (
-      <TableRow onClick={entryClick}>
-        <TableCell scope="row">{entry.smiley}</TableCell>
-        <TableCell
-          sx={
-            entry.isSpending
-              ? null
-              : {
-                  fontWeight: "bold",
-                  color: isLightTheme
-                    ? lightTheme.palette.success.main
-                    : darkTheme.palette.success.main,
-                }
-          }
-        >
-          {entry.isSpending ? entry.group + " / " + entry.item : entry.source}
-        </TableCell>
-        <TableCell
-          align="right"
-          sx={
-            entry.isSpending
-              ? null
-              : {
-                  fontWeight: "bold",
-                  color: isLightTheme
-                    ? lightTheme.palette.success.main
-                    : darkTheme.palette.success.main,
-                }
-          }
-        >
-          {entry.isSpending
-            ? "-" + entry.sum + chosenCurrency.symbol
-            : "+" + entry.sum + chosenCurrency.symbol}
-        </TableCell>
-      </TableRow>
-    );
-  };
 
   return (
     <Fragment>
@@ -300,13 +302,18 @@ function Finances(props) {
               >
                 <Table>
                   <TableBody>
-                    {tempTableEntry.map((entry) => (
-                      <EntryTableRow
-                        key={entry.id}
-                        entry={entry}
-                        openEntryPopup={openEntryPopup}
-                      />
-                    ))}
+                    <TransitionGroup>
+                      {tempTableEntry.map((entry) => (
+                        <Collapse>
+                          <EntryTableRow
+                            key={entry.id}
+                            entry={entry}
+                            openEntryPopup={openEntryPopup}
+                            chosenCurrency={chosenCurrency}
+                          />
+                        </Collapse>
+                      ))}
+                    </TransitionGroup>
                   </TableBody>
                 </Table>
               </TableContainer>

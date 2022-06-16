@@ -1,4 +1,5 @@
 import React, { Fragment, forwardRef, useState, useContext } from "react";
+import { TransitionGroup } from "react-transition-group";
 //Contexts
 import { ThemeContext } from "./contexts/ThemeContext";
 //MUI elements
@@ -6,6 +7,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import Slide from "@mui/material/Slide";
 import Zoom from "@mui/material/Zoom";
+import Collapse from "@mui/material/Collapse";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
@@ -36,6 +38,55 @@ const formSpacing = {
   gap: "15px",
 };
 
+//Input components
+const SpendingInput = (prps) => (
+  <div style={formSpacing}>
+    <Autocomplete
+      multiple
+      options={["Me", "Family", "Business", "Leisure"]}
+      getOptionLabel={(option) => option}
+      defaultValue={["Me"]}
+      fullWidth
+      value={["Me"]}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          variant="standard"
+          label="Tags"
+          placeholder="Start typing..."
+          fullWidth
+        />
+      )}
+    />
+    <Autocomplete
+      disablePortalfullWidth
+      fullWidth
+      options={["Food", "Transportation", "Life"]}
+      value={"Food"}
+      renderInput={(params) => <TextField {...params} label="Group" />}
+    />
+    <Autocomplete
+      disablePortal
+      fullWidth
+      options={["Home-cooked", "Alcohol", "Gas"]}
+      value={"Gas"}
+      renderInput={(params) => <TextField {...params} label="Item" />}
+    />
+  </div>
+);
+
+const IncomeInput = (prps) => (
+  <div style={formSpacing}>
+    <Autocomplete
+      disablePortal
+      options={["Salary", "Business", "Tips"]}
+      fullWidth
+      value={"Business"}
+      renderInput={(params) => <TextField {...params} label="Sources" />}
+    />
+  </div>
+);
+
 export default function NewEntryPopup(props) {
   const { open, closeFn } = props;
   //Theming
@@ -56,7 +107,6 @@ export default function NewEntryPopup(props) {
       <Dialog
         open={calendarOpen}
         TransitionComponent={ZoomTransition}
-        keepMounted
         onClose={closeCalendar}
         sx={{ zIndex: 2000 }}
       >
@@ -72,7 +122,6 @@ export default function NewEntryPopup(props) {
       <Dialog
         open={open}
         TransitionComponent={SlideTransition}
-        keepMounted
         onClose={closeFn}
       >
         <Box sx={{ p: 2 }}>
@@ -107,53 +156,18 @@ export default function NewEntryPopup(props) {
                 variant="outlined"
                 inputProps={{ maxLength: 7 }}
               />
-              <div style={spendingMode ? formSpacing : { display: "none" }}>
-                <Autocomplete
-                  multiple
-                  options={["Me", "Family", "Business", "Leisure"]}
-                  getOptionLabel={(option) => option}
-                  defaultValue={["Me"]}
-                  fullWidth
-                  value={["Me"]}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      variant="standard"
-                      label="Tags"
-                      placeholder="Start typing..."
-                      fullWidth
-                    />
-                  )}
-                />
-                <Autocomplete
-                  disablePortalfullWidth
-                  fullWidth
-                  options={["Food", "Transportation", "Life"]}
-                  value={"Food"}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Group" />
-                  )}
-                />
-                <Autocomplete
-                  disablePortal
-                  fullWidth
-                  options={["Home-cooked", "Alcohol", "Gas"]}
-                  value={"Gas"}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Item" />
-                  )}
-                />
-              </div>
-              <Autocomplete
-                disablePortal
-                options={["Salary", "Business", "Tips"]}
-                fullWidth
-                value={"Business"}
-                renderInput={(params) => (
-                  <TextField {...params} label="Sources" />
+              <TransitionGroup style={{ width: "100%" }}>
+                {!spendingMode && (
+                  <Collapse key={"incomeInput"}>
+                    <IncomeInput />
+                  </Collapse>
                 )}
-                sx={spendingMode ? { display: "none" } : null}
-              />
+                {spendingMode && (
+                  <Collapse key={"spendingInput"}>
+                    <SpendingInput />
+                  </Collapse>
+                )}
+              </TransitionGroup>
               <TextField
                 label="Notes"
                 fullWidth

@@ -16,12 +16,7 @@ export default function DbElementDeletePopup(props) {
   const { isOpen, close, item, itemType } = props;
 
   return (
-    <Dialog
-      open={isOpen}
-      TransitionComponent={ZoomTransition}
-      keepMounted
-      onClose={close}
-    >
+    <Dialog open={isOpen} TransitionComponent={ZoomTransition} onClose={close}>
       <DialogTitle>{`Are you sure you want to delete the ${item} ${itemType}?`}</DialogTitle>
       <DialogContent>This action cannot be undone.</DialogContent>
       <DialogActions>

@@ -73,7 +73,9 @@ function Menus(props) {
 
   //Bottom menu functions
   const selectCurrentScreen = (e, v) => {
-    setCurrentScreen(v);
+    if (mobileResolution) {
+      setCurrentScreen(v);
+    }
   };
 
   return (
