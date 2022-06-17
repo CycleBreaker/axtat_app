@@ -17,7 +17,9 @@ export default function DbElementDeletePopup(props) {
 
   return (
     <Dialog open={isOpen} TransitionComponent={ZoomTransition} onClose={close}>
-      <DialogTitle>{`Are you sure you want to delete the ${item} ${itemType}?`}</DialogTitle>
+      <DialogTitle>{`Are you sure you want to delete ${
+        itemType === "entry" ? "this entry" : `the ${item} ${itemType}`
+      }?`}</DialogTitle>
       <DialogContent>This action cannot be undone.</DialogContent>
       <DialogActions>
         <Button onClick={close} autoFocus>

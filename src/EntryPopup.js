@@ -7,6 +7,10 @@ import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import Chip from "@mui/material/Chip";
 import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 //Contexts
 import { ResolutionContext } from "./contexts/ResolutionContext";
 import { SettingsContext } from "./contexts/SettingsContext";
@@ -37,7 +41,7 @@ const Tag = function (prps) {
 };
 
 export default function EntryPopup(props) {
-  const { open, closeFn, entry } = props;
+  const { open, closeFn, entry, openEditWindow, openDeleteWindow } = props;
   const { mobileResolution } = useContext(ResolutionContext);
   const { chosenCurrency } = useContext(SettingsContext);
 
@@ -89,7 +93,7 @@ export default function EntryPopup(props) {
 
   return (
     <Dialog open={open} TransitionComponent={ZoomTransition} onClose={closeFn}>
-      <DialogContent sx={{ textAlign: "center" }}>
+      <DialogContent sx={{ textAlign: "center", width: "inherit" }}>
         <div
           style={{
             fontSize: "400%",
@@ -136,6 +140,22 @@ export default function EntryPopup(props) {
           ))}
         </Box>
         <Typography sx={{ m: 1 }}>{entry.comment}</Typography>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            flex: 1,
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <IconButton onClick={openEditWindow}>
+            <EditIcon />
+          </IconButton>
+          <IconButton onClick={openDeleteWindow}>
+            <DeleteIcon />
+          </IconButton>
+        </Stack>
       </DialogContent>
     </Dialog>
   );

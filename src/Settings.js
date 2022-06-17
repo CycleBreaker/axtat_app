@@ -50,8 +50,9 @@ const MyBox = (prps) => (
 );
 
 const DeleteButtonSubComponent = function (prps) {
+  const { element, elementType, setItemToDelete, openDeletePopup } = prps;
   const setDeleteElements = function () {
-    setItemToDelete({ item: prps.element, itemType: prps.elementType });
+    setItemToDelete({ item: element, itemType: elementType });
     openDeletePopup();
   };
   return (
@@ -126,6 +127,8 @@ const ElementEditRow = (prps) => (
           elementType={prps.title.slice(0, -1)}
           element={prps.selectedElements[prps.title.slice(0, -1).toLowerCase()]}
           isLightTheme={prps.isLightTheme}
+          setItemToDelete={prps.setItemToDelete}
+          openDeletePopup={prps.openDeletePopup}
         />
       </Stack>
     </Grid>
@@ -170,6 +173,10 @@ function Settings() {
     elementType: "Group",
     elementName: "Food",
   };
+
+  //Spending elements lists for mapping
+  const spendingElementNames = ["Tags", "Groups", "Items"];
+  const spendingElementArrays = [tempTags, tempGroups, tempItems];
 
   return (
     <motion.div
@@ -238,30 +245,19 @@ function Settings() {
           </Stack>
           <MyDivider />
           <MyBox>
-            <ElementEditRow
-              title="Tags"
-              list={tempTags}
-              mobileResolution={mobileResolution}
-              openDbElementPopup={openDbElementPopup}
-              isLightTheme={isLightTheme}
-              selectedElements={selectedElements}
-            />
-            <ElementEditRow
-              title="Groups"
-              list={tempGroups}
-              mobileResolution={mobileResolution}
-              openDbElementPopup={openDbElementPopup}
-              isLightTheme={isLightTheme}
-              selectedElements={selectedElements}
-            />
-            <ElementEditRow
-              title="Items"
-              list={tempItems}
-              mobileResolution={mobileResolution}
-              openDbElementPopup={openDbElementPopup}
-              isLightTheme={isLightTheme}
-              selectedElements={selectedElements}
-            />
+            {spendingElementNames.map((el, ar) => (
+              <ElementEditRow
+                key={el}
+                title={el}
+                list={spendingElementArrays[ar]}
+                mobileResolution={mobileResolution}
+                openDbElementPopup={openDbElementPopup}
+                isLightTheme={isLightTheme}
+                selectedElements={selectedElements}
+                setItemToDelete={setItemToDelete}
+                openDeletePopup={openDeletePopup}
+              />
+            ))}
           </MyBox>
           <Stack direction="row" sx={{ ml: 2, pt: 3 }}>
             <AddCardIcon sx={{ transform: "translate(-4px, 4px)" }} />
@@ -276,6 +272,8 @@ function Settings() {
               openDbElementPopup={openDbElementPopup}
               isLightTheme={isLightTheme}
               selectedElements={selectedElements}
+              setItemToDelete={setItemToDelete}
+              openDeletePopup={openDeletePopup}
             />
           </MyBox>
         </Paper>

@@ -4,6 +4,7 @@ import { TransitionGroup } from "react-transition-group";
 //App Components
 import NewEntryPopup from "./NewEntryPopup";
 import EntryPopup from "./EntryPopup";
+import DbElementDeletePopup from "./DbElementDeletePopup";
 //Contexts
 import { ResolutionContext } from "./contexts/ResolutionContext";
 import { ThemeContext } from "./contexts/ThemeContext";
@@ -14,11 +15,7 @@ import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Fab from "@mui/material/Fab";
 import Grid from "@mui/material/Grid";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableRow from "@mui/material/TableRow";
+import Divider from "@mui/material/Divider";
 import Collapse from "@mui/material/Collapse";
 //Icons
 import AddIcon from "@mui/icons-material/Add";
@@ -190,7 +187,7 @@ const tempTableEntry = [
 
 //Entry table row component
 const EntryTableRow = function (props) {
-  const { entry, openEntryPopup, chosenCurrency } = props;
+  const { entry, index, openEntryPopup, chosenCurrency } = props;
   const { isLightTheme, lightTheme, darkTheme } = useContext(ThemeContext);
 
   const entryClick = function () {
@@ -198,40 +195,70 @@ const EntryTableRow = function (props) {
   };
 
   return (
-    <TableRow onClick={entryClick} sx={{ width: "100%" }}>
-      <TableCell scope="row">{entry.smiley}</TableCell>
-      <TableCell
-        sx={
-          entry.isSpending
-            ? null
-            : {
-                fontWeight: "bold",
-                color: isLightTheme
-                  ? lightTheme.palette.success.main
-                  : darkTheme.palette.success.main,
-              }
-        }
-      >
-        {entry.isSpending ? entry.group + " / " + entry.item : entry.source}
-      </TableCell>
-      <TableCell
-        align="right"
-        sx={
-          entry.isSpending
-            ? null
-            : {
-                fontWeight: "bold",
-                color: isLightTheme
-                  ? lightTheme.palette.success.main
-                  : darkTheme.palette.success.main,
-              }
-        }
-      >
-        {entry.isSpending
-          ? "-" + entry.sum + chosenCurrency.symbol
-          : "+" + entry.sum + chosenCurrency.symbol}
-      </TableCell>
-    </TableRow>
+    //The grid rows stretch by width thanks to 'flex' property
+    <Box sx={{ width: "inherit" }} onClick={entryClick}>
+      <Grid container spacing={2} sx={{ width: "100%", p: 2 }}>
+        <Grid
+          item
+          xl={2}
+          sx={{
+            flex: 0.2,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          {entry.smiley}
+        </Grid>
+        <Grid
+          item
+          xl={5}
+          sx={
+            entry.isSpending
+              ? { flex: 2.3 }
+              : {
+                  fontWeight: "bold",
+                  color: isLightTheme
+                    ? lightTheme.palette.success.main
+                    : darkTheme.palette.success.main,
+                  flex: 2.3,
+                }
+          }
+        >
+          {entry.isSpending ? entry.group + " / " + entry.item : entry.source}
+        </Grid>
+        <Grid
+          item
+          xl={5}
+          sx={
+            entry.isSpending
+              ? {
+                  flex: 0.5,
+                  textAlign: "right",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }
+              : {
+                  fontWeight: "bold",
+                  color: isLightTheme
+                    ? lightTheme.palette.success.main
+                    : darkTheme.palette.success.main,
+                  flex: 0.5,
+                  textAlign: "right",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }
+          }
+        >
+          {entry.isSpending
+            ? "-" + entry.sum + chosenCurrency.symbol
+            : "+" + entry.sum + chosenCurrency.symbol}
+        </Grid>
+      </Grid>
+      {index !== tempTableEntry.length - 1 && <Divider />}
+    </Box>
   );
 };
 
@@ -243,7 +270,15 @@ function Finances(props) {
   //New Entry popup
   const [newEntryPopupOpen, setNewEntryPopupOpen] = useState(false);
   const openNewEntryPopup = () => setNewEntryPopupOpen(true);
-  const closeNewEntryPopup = () => setNewEntryPopupOpen(false);
+  const closeNewEntryPopup = function () {
+    setNewPopupEntryEditMode(false);
+    setNewEntryPopupOpen(false);
+  };
+  const [newPopupEntryEditMode, setNewPopupEntryEditMode] = useState(false);
+  const openEditEntryPopup = function () {
+    setNewPopupEntryEditMode(true);
+    openNewEntryPopup();
+  };
   //Existing entry popup
   const [currentEntry, setCurrentEntry] = useState(tempTableEntry[0]);
   const [entryPopupOpen, setEntryPopupOpen] = useState(false);
@@ -252,6 +287,10 @@ function Finances(props) {
     setEntryPopupOpen(true);
   };
   const closeEntryPopup = () => setEntryPopupOpen(false);
+  //Delete entry popup controls
+  const [deletePopupOpen, setDeletePopupOpen] = useState(false);
+  const openDeletePopup = () => setDeletePopupOpen(true);
+  const closeDeletePopup = () => setDeletePopupOpen(false);
 
   return (
     <Fragment>
@@ -279,13 +318,22 @@ function Finances(props) {
           <NewEntryPopup
             open={newEntryPopupOpen}
             closeFn={closeNewEntryPopup}
+            editMode={newPopupEntryEditMode}
           />
           <EntryPopup
             entry={currentEntry}
             open={entryPopupOpen}
             closeFn={closeEntryPopup}
+            openEditWindow={openEditEntryPopup}
+            openDeleteWindow={openDeletePopup}
           />
-          <Grid container spacing={1}>
+          <DbElementDeletePopup
+            isOpen={deletePopupOpen}
+            close={closeDeletePopup}
+            item={currentEntry.id}
+            itemType="entry"
+          />
+          <Grid container spacing={2}>
             <Grid item xs={12} sx={{ width: "100%" }}>
               <Paper elevation={3} className="slide-in-bottom">
                 <Box sx={{ p: 2 }}>
@@ -294,29 +342,27 @@ function Finances(props) {
                 </Box>
               </Paper>
             </Grid>
-            <Grid item xs={12} sx={{ width: "100%" }}>
-              <TableContainer
-                component={Paper}
-                elevation={3}
-                className="slide-in-bottom2"
-              >
-                <Table>
-                  <TableBody>
-                    <TransitionGroup>
-                      {tempTableEntry.map((entry) => (
-                        <Collapse>
-                          <EntryTableRow
-                            key={entry.id}
-                            entry={entry}
-                            openEntryPopup={openEntryPopup}
-                            chosenCurrency={chosenCurrency}
-                          />
-                        </Collapse>
-                      ))}
-                    </TransitionGroup>
-                  </TableBody>
-                </Table>
-              </TableContainer>
+            <Grid
+              item
+              xs={12}
+              sx={{ width: "100%" }}
+              className="slide-in-bottom2"
+            >
+              <Paper elevation={3}>
+                <TransitionGroup sx={{ width: "inherit" }}>
+                  {tempTableEntry.map((entry, i) => (
+                    <Collapse sx={{ width: "inherit" }}>
+                      <EntryTableRow
+                        key={entry.id}
+                        index={i}
+                        entry={entry}
+                        openEntryPopup={openEntryPopup}
+                        chosenCurrency={chosenCurrency}
+                      />
+                    </Collapse>
+                  ))}
+                </TransitionGroup>
+              </Paper>
             </Grid>
           </Grid>
         </Box>

@@ -88,7 +88,7 @@ const IncomeInput = (prps) => (
 );
 
 export default function NewEntryPopup(props) {
-  const { open, closeFn } = props;
+  const { open, closeFn, editMode } = props;
   //Theming
   const { isLightTheme } = useContext(ThemeContext);
 
@@ -126,7 +126,7 @@ export default function NewEntryPopup(props) {
       >
         <Box sx={{ p: 2 }}>
           <Typography variant="h4" sx={{ textAlign: "center" }}>
-            Add new Entry
+            {editMode ? "Edit Entry" : "Add new Entry"}
           </Typography>
           <DialogContent sx={formSpacing}>
             <ButtonGroup variant="outlined" aria-label="outlined button group">
@@ -181,7 +181,7 @@ export default function NewEntryPopup(props) {
                 variant="contained"
                 endIcon={<SendIcon />}
               >
-                Record
+                {editMode ? "Update" : "Record"}
               </Button>
             </form>
           </DialogContent>
