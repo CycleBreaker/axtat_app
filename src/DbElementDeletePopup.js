@@ -15,11 +15,20 @@ const ZoomTransition = forwardRef(function ZoomTransition(props, ref) {
 export default function DbElementDeletePopup(props) {
   const { isOpen, close, item, itemType } = props;
 
+  const titleMessage = function () {
+    switch (itemType) {
+      case "entry":
+        return "this entry";
+      case "stat":
+        return `the ${item} Stat Window`;
+      default:
+        return `the ${item} ${itemType}`;
+    }
+  };
+
   return (
     <Dialog open={isOpen} TransitionComponent={ZoomTransition} onClose={close}>
-      <DialogTitle>{`Are you sure you want to delete ${
-        itemType === "entry" ? "this entry" : `the ${item} ${itemType}`
-      }?`}</DialogTitle>
+      <DialogTitle>{`Are you sure you want to delete ${titleMessage()}?`}</DialogTitle>
       <DialogContent>This action cannot be undone.</DialogContent>
       <DialogActions>
         <Button onClick={close} autoFocus>

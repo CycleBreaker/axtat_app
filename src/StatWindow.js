@@ -1,12 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 //MUI elements
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import IconButton from "@mui/material/IconButton";
 //Icons
-import OpenInFullIcon from "@mui/icons-material/OpenInFull";
-import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 //ChartJS elements
@@ -49,42 +47,38 @@ const tempChartDataObject = {
 };
 
 export default function StatWindow(props) {
-  //Size toggle functionality
-  const [fullSize, setFullSize] = useState(false);
-  const toggleSize = () => setFullSize(!fullSize);
-  const windowStyle = {
-    p: 2,
-    m: 2,
-    textAlign: "center",
-    width: fullSize ? "100%" : "100%",
-    position: "relative",
-    transition: "width 0.5s",
-    boxSizing: "border-box",
-  };
+  const { name, openEditPopup, openDeletePopup } = props;
+
+  const editWindow = () => openEditPopup(true, name);
+  const deleteWindow = () => openDeletePopup(name);
 
   return (
-    <Paper elevation={3} sx={windowStyle}>
+    <Paper
+      elevation={3}
+      sx={{
+        p: 2,
+        m: 2,
+        textAlign: "center",
+        width: "100%",
+        position: "relative",
+        transition: "width 0.5s",
+        boxSizing: "border-box",
+      }}
+    >
       <Stack
         direction="row"
         alignItems="right"
-        spacing={fullSize ? 1 : 0}
+        spacing={1}
         sx={{ position: "absolute", right: 20 }}
       >
-        <IconButton size="small">
-          <DeleteIcon />
-        </IconButton>
-        <IconButton size="small">
+        <IconButton size="small" onClick={editWindow}>
           <EditIcon />
         </IconButton>
-        <IconButton size="small" onClick={toggleSize}>
-          {fullSize ? (
-            <CloseFullscreenIcon fontSize="inherit" />
-          ) : (
-            <OpenInFullIcon fontSize="inherit" />
-          )}
+        <IconButton size="small" onClick={deleteWindow}>
+          <DeleteIcon />
         </IconButton>
       </Stack>
-      <Typography variant={fullSize ? "h4" : "h5"}>{props.name}</Typography>
+      <Typography variant={"h4"}>{name}</Typography>
       <Line data={tempChartDataObject} />
     </Paper>
   );

@@ -5,7 +5,6 @@ import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
-import Slide from "@mui/material/Slide";
 
 export default function Login() {
   //Grow in timeout={2000} easing={{ enter: "cubic-bezier(.28,.11,.27,1)" }}

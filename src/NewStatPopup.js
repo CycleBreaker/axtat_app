@@ -98,7 +98,7 @@ function TempTable() {
 }
 
 export default function NewStatPopup(props) {
-  const { open, closeFn } = props;
+  const { open, closeFn, selectedWindow } = props;
   //Theming
   const { isLightTheme } = useContext(ThemeContext);
 
@@ -132,7 +132,9 @@ export default function NewStatPopup(props) {
       >
         <Box sx={{ p: 2 }}>
           <Typography variant="h4" sx={{ textAlign: "center" }}>
-            Create new Stat Window
+            {selectedWindow
+              ? `Edit ${selectedWindow}`
+              : "Create new Stat Window"}
           </Typography>
           <DialogContent sx={formSpacing}>
             <form style={formSpacing}>
@@ -140,11 +142,10 @@ export default function NewStatPopup(props) {
               <Stack direction="row" spacing={1}>
                 <TextField label="Date range" variant="standard" />
                 <Button variant="contained" onClick={openCalendar}>
-                  Pick date
+                  Pick date range
                 </Button>
               </Stack>
               <Autocomplete
-                disablePortalfullWidth
                 fullWidth
                 options={["Line", "Bar", "Pie"]}
                 value={"Line"}

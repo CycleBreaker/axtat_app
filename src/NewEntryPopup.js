@@ -59,7 +59,6 @@ const SpendingInput = (prps) => (
       )}
     />
     <Autocomplete
-      disablePortalfullWidth
       fullWidth
       options={["Food", "Transportation", "Life"]}
       value={"Food"}
@@ -193,4 +192,3 @@ export default function NewEntryPopup(props) {
 
 //Во всех Autocomplete не хватает параметров onChange, в его TextField - error и helperText
 //В целом, не забудь про валидацию и вращающуюся иконку отправки
-//Также попробовать добавить переход TransitionGroup Collapse, но для этого нужно в самом деле mount'ить и unmount'ить компоненты

@@ -1,4 +1,5 @@
 import React, { useState, useContext, memo } from "react";
+import { useNavigate } from "react-router-dom";
 //App components
 import DbElementPopup from "./DbElementPopup";
 import DbElementDeletePopup from "./DbElementDeletePopup";
@@ -20,6 +21,7 @@ import IconButton from "@mui/material/IconButton";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
+import Button from "@mui/material/Button";
 //MUI icons
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import EditIcon from "@mui/icons-material/Edit";
@@ -27,6 +29,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import PaletteIcon from "@mui/icons-material/Palette";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import AddCardIcon from "@mui/icons-material/AddCard";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 //Transition animation
 import { motion } from "framer-motion";
 //Currency list
@@ -56,11 +59,7 @@ const DeleteButtonSubComponent = function (prps) {
     openDeletePopup();
   };
   return (
-    <IconButton
-      onClick={setDeleteElements}
-      element={prps.element}
-      elementType={prps.elementType}
-    >
+    <IconButton onClick={setDeleteElements}>
       <DeleteIcon color={prps.isLightTheme ? "primary" : "info"} />
     </IconButton>
   );
@@ -161,6 +160,9 @@ function Settings() {
     closeDeletePopup();
     setItemToDelete({ item: "", itemType: "" });
   };
+  //Log out function (probably needs to be placed elsewhere)
+  const navigate = useNavigate();
+  const logout = () => navigate("/");
 
   //Temporary database elements
   const tempTags = ["Me", "Family", "Woman"];
@@ -275,6 +277,16 @@ function Settings() {
               setItemToDelete={setItemToDelete}
               openDeletePopup={openDeletePopup}
             />
+          </MyBox>
+          <Stack direction="row" sx={{ ml: 2, pt: 3 }}>
+            <ManageAccountsIcon sx={{ transform: "translate(-4px, 4px)" }} />
+            <Typography variant="h5">Account</Typography>
+          </Stack>
+          <MyDivider />
+          <MyBox>
+            <Button variant="outlined" sx={{ mb: 2 }} onClick={logout}>
+              Log out
+            </Button>
           </MyBox>
         </Paper>
       </Box>

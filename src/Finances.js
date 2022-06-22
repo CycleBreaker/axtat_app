@@ -1,6 +1,7 @@
 import React, { Fragment, useState, useContext, memo } from "react";
 import "./Finances.css";
 import { TransitionGroup } from "react-transition-group";
+import { useLocation } from "react-router-dom";
 //App Components
 import NewEntryPopup from "./NewEntryPopup";
 import EntryPopup from "./EntryPopup";
@@ -236,7 +237,7 @@ const EntryTableRow = function (props) {
                   flex: 0.5,
                   textAlign: "right",
                   display: "flex",
-                  justifyContent: "center",
+                  justifyContent: "flex-end",
                   alignItems: "center",
                 }
               : {
@@ -247,7 +248,7 @@ const EntryTableRow = function (props) {
                   flex: 0.5,
                   textAlign: "right",
                   display: "flex",
-                  justifyContent: "center",
+                  justifyContent: "flex-end",
                   alignItems: "center",
                 }
           }
@@ -263,6 +264,7 @@ const EntryTableRow = function (props) {
 };
 
 function Finances(props) {
+  const location = useLocation();
   //Contexts
   const { tabletResolution, commonWindowSize } = useContext(ResolutionContext);
   const { transition } = useContext(TransitionContext);
@@ -303,6 +305,7 @@ function Finances(props) {
           bottom: 80,
           left: "auto",
           position: "fixed",
+          display: location.pathname === "/finances" ? null : "none",
         }}
         onClick={openNewEntryPopup}
         className="slide-in-bottom3"
@@ -351,9 +354,8 @@ function Finances(props) {
               <Paper elevation={3}>
                 <TransitionGroup sx={{ width: "inherit" }}>
                   {tempTableEntry.map((entry, i) => (
-                    <Collapse sx={{ width: "inherit" }}>
+                    <Collapse sx={{ width: "inherit" }} key={entry.id}>
                       <EntryTableRow
-                        key={entry.id}
                         index={i}
                         entry={entry}
                         openEntryPopup={openEntryPopup}

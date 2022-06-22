@@ -12,8 +12,10 @@ import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 //Contexts
-import { ResolutionContext } from "./contexts/ResolutionContext";
 import { SettingsContext } from "./contexts/SettingsContext";
+import { ThemeContext } from "./contexts/ThemeContext";
+//Helpers
+import { lightTheme, darkTheme } from "./themes";
 
 //Transition animation
 const ZoomTransition = forwardRef(function SlideTransition(props, ref) {
@@ -22,9 +24,11 @@ const ZoomTransition = forwardRef(function SlideTransition(props, ref) {
 
 //Tag CSS
 const Tag = function (prps) {
+  const { isLightTheme } = useContext(ThemeContext);
   return (
     <div
       style={{
+        position: "relative",
         backgroundColor: prps.color,
         display: "inline-block",
         textAlign: "right",
@@ -35,6 +39,19 @@ const Tag = function (prps) {
         transform: "scale(0.8)",
       }}
     >
+      <span
+        style={{
+          position: "absolute",
+          top: "-30px",
+          left: "5px",
+          fontSize: "400%",
+          color: isLightTheme
+            ? lightTheme.palette.background.default
+            : darkTheme.palette.background.default,
+        }}
+      >
+        {String.fromCharCode(183)}
+      </span>
       {prps.tag}
     </div>
   );
@@ -42,7 +59,6 @@ const Tag = function (prps) {
 
 export default function EntryPopup(props) {
   const { open, closeFn, entry, openEditWindow, openDeleteWindow } = props;
-  const { mobileResolution } = useContext(ResolutionContext);
   const { chosenCurrency } = useContext(SettingsContext);
 
   const dateFormat = {
