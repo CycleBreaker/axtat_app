@@ -3,6 +3,7 @@ import React, { Fragment, useContext, useState, memo } from "react";
 import StatWindow from "./StatWindow";
 import NewStatPopup from "./NewStatPopup";
 import DbElementDeletePopup from "./DbElementDeletePopup";
+import Footer from "./Footer";
 //Contexts
 import { ResolutionContext } from "./contexts/ResolutionContext";
 //MUI elements
@@ -13,6 +14,8 @@ import AddIcon from "@mui/icons-material/Add";
 //Drag and Drop
 import { SortableContainer, SortableElement } from "react-sortable-hoc";
 import { arrayMoveImmutable as arrayMove } from "array-move";
+//Custom scrollbar
+import { Scrollbars } from "react-custom-scrollbars-2";
 
 function Statistics(props) {
   //Contexts
@@ -60,7 +63,12 @@ function Statistics(props) {
   const closeDeletePopup = () => setDeletePopupOpen(false);
 
   return (
-    <Fragment>
+    <Scrollbars
+      style={{
+        width: "100vw",
+        height: "100vh",
+      }}
+    >
       <Fab
         color="primary"
         sx={{
@@ -101,7 +109,8 @@ function Statistics(props) {
           </div>
         </DraggableStatWindowList>
       </Box>
-    </Fragment>
+      <Footer />
+    </Scrollbars>
   );
 }
 

@@ -8,7 +8,6 @@ import Slide from "@mui/material/Slide";
 import Zoom from "@mui/material/Zoom";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Autocomplete from "@mui/material/Autocomplete";
@@ -45,53 +44,89 @@ const formSpacing = {
 };
 
 //Temporary table
+const tempTagsTableContents = [
+  { name: "Me", type: "Tag", parent: null },
+  { name: "Business", type: "Tag", parent: null },
+];
+const tempGroupsTableContents = [
+  { name: "Food", type: "Group", parent: null },
+  { name: "Appearance", type: "Group", parent: null },
+];
+const tempItemsTableContents = [
+  { name: "Home-Cooked", type: "Item", parent: "Food" },
+  { name: "Clothing", type: "Item", parent: "Appearance" },
+];
+const tempSourcesTableContents = [
+  { name: "Salary", type: "Source", parent: null },
+  { name: "Tips", type: "Source", parent: null },
+  { name: "Business", type: "Source", parent: null },
+];
 function TempTable() {
   return (
     <TableContainer>
-      <Table>
+      <Table size="small">
         <TableBody>
           <TableRow>
             <TableCell>
-              <Checkbox />
+              <Checkbox size="small" />
             </TableCell>
-            <TableCell></TableCell>
-            <TableCell>Food</TableCell>
+            {
+              //Как запрограммировать промежуточное состояние чекбокса, смотри в https://mui.com/material-ui/react-table/#sorting-amp-selecting
+            }
+            <TableCell sx={{ fontWeight: "bold", minWidth: "130px" }}>
+              Spending tags
+            </TableCell>
           </TableRow>
+          {tempTagsTableContents.map((row) => (
+            <TableRow>
+              <TableCell>
+                <Checkbox size="small" />
+              </TableCell>
+              <TableCell>{row.name}</TableCell>
+            </TableRow>
+          ))}
           <TableRow>
             <TableCell>
-              <Checkbox />
+              <Checkbox size="small" />
             </TableCell>
-            <TableCell>Food</TableCell>
-            <TableCell>Home-cooked</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>Spending groups</TableCell>
           </TableRow>
+          {tempGroupsTableContents.map((row) => (
+            <TableRow>
+              <TableCell>
+                <Checkbox size="small" />
+              </TableCell>
+              <TableCell>{row.name}</TableCell>
+            </TableRow>
+          ))}
           <TableRow>
             <TableCell>
-              <Checkbox />
+              <Checkbox size="small" />
             </TableCell>
-            <TableCell>Food</TableCell>
-            <TableCell>Fast food</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>Spending items</TableCell>
           </TableRow>
+          {tempItemsTableContents.map((row) => (
+            <TableRow>
+              <TableCell>
+                <Checkbox size="small" />
+              </TableCell>
+              <TableCell>{row.name}</TableCell>
+            </TableRow>
+          ))}
           <TableRow>
             <TableCell>
-              <Checkbox />
+              <Checkbox size="small" />
             </TableCell>
-            <TableCell>Transportation</TableCell>
-            <TableCell>Gas</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>Earning sources</TableCell>
           </TableRow>
-          <TableRow>
-            <TableCell>
-              <Checkbox />
-            </TableCell>
-            <TableCell>Transportation</TableCell>
-            <TableCell>Community</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>
-              <Checkbox />
-            </TableCell>
-            <TableCell>Salary</TableCell>
-            <TableCell></TableCell>
-          </TableRow>
+          {tempSourcesTableContents.map((row) => (
+            <TableRow>
+              <TableCell>
+                <Checkbox size="small" />
+              </TableCell>
+              <TableCell>{row.name}</TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </TableContainer>

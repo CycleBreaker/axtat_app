@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useContext } from "react";
+//Contexts
+import { ThemeContext } from "./contexts/ThemeContext";
 //MUI elements
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
@@ -48,6 +50,7 @@ const tempChartDataObject = {
 
 export default function StatWindow(props) {
   const { name, openEditPopup, openDeletePopup } = props;
+  const { isLightTheme } = useContext(ThemeContext);
 
   const editWindow = () => openEditPopup(true, name);
   const deleteWindow = () => openDeletePopup(name);
@@ -71,10 +74,10 @@ export default function StatWindow(props) {
         sx={{ position: "absolute", right: 20 }}
       >
         <IconButton size="small" onClick={editWindow}>
-          <EditIcon />
+          <EditIcon color={isLightTheme ? "primary" : "info"} />
         </IconButton>
         <IconButton size="small" onClick={deleteWindow}>
-          <DeleteIcon />
+          <DeleteIcon color={isLightTheme ? "primary" : "info"} />
         </IconButton>
       </Stack>
       <Typography variant={"h4"}>{name}</Typography>

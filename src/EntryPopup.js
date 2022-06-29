@@ -60,6 +60,7 @@ const Tag = function (prps) {
 export default function EntryPopup(props) {
   const { open, closeFn, entry, openEditWindow, openDeleteWindow } = props;
   const { chosenCurrency } = useContext(SettingsContext);
+  const { isLightTheme } = useContext(ThemeContext);
 
   const dateFormat = {
     hour: "numeric",
@@ -166,10 +167,10 @@ export default function EntryPopup(props) {
           }}
         >
           <IconButton onClick={openEditWindow}>
-            <EditIcon />
+            <EditIcon color={isLightTheme ? "primary" : "info"} />
           </IconButton>
           <IconButton onClick={openDeleteWindow}>
-            <DeleteIcon />
+            <DeleteIcon color={isLightTheme ? "primary" : "info"} />
           </IconButton>
         </Stack>
       </DialogContent>

@@ -32,8 +32,6 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import SettingsIcon from "@mui/icons-material/Settings";
-//Custom scrollbar
-import { Scrollbars } from "react-custom-scrollbars-2";
 
 function Menus(props) {
   const navigate = useNavigate();
@@ -176,15 +174,14 @@ function Menus(props) {
           </Toolbar>
         </AppBar>
       </Box>
-      <Scrollbars
+      <Box
         style={{
           width: "100vw",
           height: "100vh",
         }}
       >
         {props.children}
-        {location.pathname !== "/" && <Footer />}
-      </Scrollbars>
+      </Box>
       <Box
         sx={
           mobileResolution

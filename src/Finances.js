@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext, memo } from "react";
+import React, { useState, useContext, memo } from "react";
 import "./Finances.css";
 import { TransitionGroup } from "react-transition-group";
 import { useLocation } from "react-router-dom";
@@ -17,11 +17,14 @@ import Fab from "@mui/material/Fab";
 import Grid from "@mui/material/Grid";
 import Divider from "@mui/material/Divider";
 import Collapse from "@mui/material/Collapse";
+import Footer from "./Footer";
 //Icons
 import AddIcon from "@mui/icons-material/Add";
 //ChartJS elements
 import { Line } from "react-chartjs-2";
 import { Chart } from "chart.js/auto";
+//Custom scrollbar
+import { Scrollbars } from "react-custom-scrollbars-2";
 
 //Temporary boilerplate stuff
 const tempChartData = [
@@ -291,7 +294,12 @@ function Finances(props) {
   const closeDeletePopup = () => setDeletePopupOpen(false);
 
   return (
-    <Fragment>
+    <Scrollbars
+      style={{
+        width: "100vw",
+        height: "100vh",
+      }}
+    >
       <Fab
         color="primary"
         sx={{
@@ -359,8 +367,12 @@ function Finances(props) {
           </Grid>
         </Grid>
       </Box>
-    </Fragment>
+      <Footer />
+    </Scrollbars>
   );
 }
 
 export default memo(Finances);
+
+//Разбиваем таблицу по дням так: заказываем из БД записи в порядке очереди - от новых к старым. В бэкэндовой функции разбиваем по ключам,
+//то есть .getDay() && getMonth() и .getYear(). Отправляем на фронт дату последней записи, мэппим по дням.

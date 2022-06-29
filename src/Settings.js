@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext, memo } from "react";
+import React, { useState, useContext, memo } from "react";
 import { useNavigate } from "react-router-dom";
 //App components
 import DbElementPopup from "./DbElementPopup";
@@ -6,7 +6,6 @@ import DbElementDeletePopup from "./DbElementDeletePopup";
 //Contexts
 import { ResolutionContext } from "./contexts/ResolutionContext";
 import { ThemeContext } from "./contexts/ThemeContext";
-import { TransitionContext } from "./contexts/TransitionContext";
 import { SettingsContext } from "./contexts/SettingsContext";
 //MUI elements
 import Paper from "@mui/material/Paper";
@@ -22,6 +21,7 @@ import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import Button from "@mui/material/Button";
+import Footer from "./Footer";
 //MUI icons
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import EditIcon from "@mui/icons-material/Edit";
@@ -32,6 +32,8 @@ import AddCardIcon from "@mui/icons-material/AddCard";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 //Currency list
 import { currencies } from "./config";
+//Custom scrollbar
+import { Scrollbars } from "react-custom-scrollbars-2";
 
 //Menu components
 const MyDivider = () => <Divider variant="middle" sx={{ mb: 4 }} />;
@@ -178,7 +180,12 @@ function Settings() {
   const spendingElementArrays = [tempTags, tempGroups, tempItems];
 
   return (
-    <Fragment>
+    <Scrollbars
+      style={{
+        width: "100vw",
+        height: "100vh",
+      }}
+    >
       <DbElementPopup
         isOpen={dbElementPopupOpen}
         close={closeDbElementPopup}
@@ -283,7 +290,8 @@ function Settings() {
           </MyBox>
         </Paper>
       </Box>
-    </Fragment>
+      <Footer />
+    </Scrollbars>
   );
 }
 
