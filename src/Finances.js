@@ -9,7 +9,6 @@ import DbElementDeletePopup from "./DbElementDeletePopup";
 //Contexts
 import { ResolutionContext } from "./contexts/ResolutionContext";
 import { ThemeContext } from "./contexts/ThemeContext";
-import { TransitionContext } from "./contexts/TransitionContext";
 import { SettingsContext } from "./contexts/SettingsContext";
 //MUI elements
 import Paper from "@mui/material/Paper";
@@ -23,8 +22,6 @@ import AddIcon from "@mui/icons-material/Add";
 //ChartJS elements
 import { Line } from "react-chartjs-2";
 import { Chart } from "chart.js/auto";
-//Transition animation
-import { motion } from "framer-motion";
 
 //Temporary boilerplate stuff
 const tempChartData = [
@@ -267,7 +264,6 @@ function Finances(props) {
   const location = useLocation();
   //Contexts
   const { tabletResolution, commonWindowSize } = useContext(ResolutionContext);
-  const { transition } = useContext(TransitionContext);
   const { chosenCurrency } = useContext(SettingsContext);
   //New Entry popup
   const [newEntryPopupOpen, setNewEntryPopupOpen] = useState(false);
@@ -312,63 +308,57 @@ function Finances(props) {
       >
         <AddIcon />
       </Fab>
-      <motion.div
-        initial={transition.initial}
-        animate={transition.animate}
-        exit={transition.exit}
-      >
-        <Box sx={commonWindowSize}>
-          <NewEntryPopup
-            open={newEntryPopupOpen}
-            closeFn={closeNewEntryPopup}
-            editMode={newPopupEntryEditMode}
-          />
-          <EntryPopup
-            entry={currentEntry}
-            open={entryPopupOpen}
-            closeFn={closeEntryPopup}
-            openEditWindow={openEditEntryPopup}
-            openDeleteWindow={openDeletePopup}
-          />
-          <DbElementDeletePopup
-            isOpen={deletePopupOpen}
-            close={closeDeletePopup}
-            item={currentEntry.id}
-            itemType="entry"
-          />
-          <Grid container spacing={2}>
-            <Grid item xs={12} sx={{ width: "100%" }}>
-              <Paper elevation={3} className="slide-in-bottom">
-                <Box sx={{ p: 2 }}>
-                  <Box sx={{ textAlign: "right" }}>9 May 2022 - 9 May 2023</Box>
-                  <Line data={tempChartDataObject} options={{ scale: 0.5 }} />
-                </Box>
-              </Paper>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              sx={{ width: "100%" }}
-              className="slide-in-bottom2"
-            >
-              <Paper elevation={3}>
-                <TransitionGroup sx={{ width: "inherit" }}>
-                  {tempTableEntry.map((entry, i) => (
-                    <Collapse sx={{ width: "inherit" }} key={entry.id}>
-                      <EntryTableRow
-                        index={i}
-                        entry={entry}
-                        openEntryPopup={openEntryPopup}
-                        chosenCurrency={chosenCurrency}
-                      />
-                    </Collapse>
-                  ))}
-                </TransitionGroup>
-              </Paper>
-            </Grid>
+      <Box sx={commonWindowSize}>
+        <NewEntryPopup
+          open={newEntryPopupOpen}
+          closeFn={closeNewEntryPopup}
+          editMode={newPopupEntryEditMode}
+        />
+        <EntryPopup
+          entry={currentEntry}
+          open={entryPopupOpen}
+          closeFn={closeEntryPopup}
+          openEditWindow={openEditEntryPopup}
+          openDeleteWindow={openDeletePopup}
+        />
+        <DbElementDeletePopup
+          isOpen={deletePopupOpen}
+          close={closeDeletePopup}
+          item={currentEntry.id}
+          itemType="entry"
+        />
+        <Grid container spacing={2}>
+          <Grid item xs={12} sx={{ width: "100%" }}>
+            <Paper elevation={3} className="slide-in-bottom">
+              <Box sx={{ p: 2 }}>
+                <Box sx={{ textAlign: "right" }}>9 May 2022 - 9 May 2023</Box>
+                <Line data={tempChartDataObject} options={{ scale: 0.5 }} />
+              </Box>
+            </Paper>
           </Grid>
-        </Box>
-      </motion.div>
+          <Grid
+            item
+            xs={12}
+            sx={{ width: "100%" }}
+            className="slide-in-bottom2"
+          >
+            <Paper elevation={3}>
+              <TransitionGroup sx={{ width: "inherit" }}>
+                {tempTableEntry.map((entry, i) => (
+                  <Collapse sx={{ width: "inherit" }} key={entry.id}>
+                    <EntryTableRow
+                      index={i}
+                      entry={entry}
+                      openEntryPopup={openEntryPopup}
+                      chosenCurrency={chosenCurrency}
+                    />
+                  </Collapse>
+                ))}
+              </TransitionGroup>
+            </Paper>
+          </Grid>
+        </Grid>
+      </Box>
     </Fragment>
   );
 }

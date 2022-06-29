@@ -18,6 +18,7 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import Checkbox from "@mui/material/Checkbox";
+import Grid from "@mui/material/Grid";
 //Icons
 import SendIcon from "@mui/icons-material/Send";
 //Calendar
@@ -139,12 +140,20 @@ export default function NewStatPopup(props) {
           <DialogContent sx={formSpacing}>
             <form style={formSpacing}>
               <TextField label="Name" variant="outlined" fullWidth />
-              <Stack direction="row" spacing={1}>
-                <TextField label="Date range" variant="standard" />
-                <Button variant="contained" onClick={openCalendar}>
-                  Pick date range
-                </Button>
-              </Stack>
+              <Grid
+                container
+                spacing={1}
+                sx={{ width: "100%", textAlign: "center" }}
+              >
+                <Grid item xs={12} sm={8} sx={{ width: "100%" }}>
+                  <TextField label="Date range" variant="standard" fullWidth />
+                </Grid>
+                <Grid item xs={12} sm={4} sx={{ width: "100%" }}>
+                  <Button variant="contained" onClick={openCalendar}>
+                    Pick date range
+                  </Button>
+                </Grid>
+              </Grid>
               <Autocomplete
                 fullWidth
                 options={["Line", "Bar", "Pie"]}

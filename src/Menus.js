@@ -1,5 +1,11 @@
 import React, { Fragment, useState, useContext, memo } from "react";
-import { Link, NavLink, useMatch, useNavigate } from "react-router-dom";
+import {
+  Link,
+  NavLink,
+  useMatch,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 //App Components
 import Footer from "./Footer";
 import Logo from "./Logo";
@@ -31,6 +37,7 @@ import { Scrollbars } from "react-custom-scrollbars-2";
 
 function Menus(props) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   //Contexts
   const { isLightTheme, switchTheme } = useContext(ThemeContext);
@@ -176,7 +183,7 @@ function Menus(props) {
         }}
       >
         {props.children}
-        <Footer />
+        {location.pathname !== "/" && <Footer />}
       </Scrollbars>
       <Box
         sx={

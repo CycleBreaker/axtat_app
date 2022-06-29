@@ -57,11 +57,10 @@ export default function StatWindow(props) {
       elevation={3}
       sx={{
         p: 2,
-        m: 2,
+        m: "10px 0",
         textAlign: "center",
         width: "100%",
         position: "relative",
-        transition: "width 0.5s",
         boxSizing: "border-box",
       }}
     >

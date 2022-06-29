@@ -1,4 +1,4 @@
-import React, { useState, useContext, memo } from "react";
+import React, { Fragment, useState, useContext, memo } from "react";
 import { useNavigate } from "react-router-dom";
 //App components
 import DbElementPopup from "./DbElementPopup";
@@ -30,8 +30,6 @@ import PaletteIcon from "@mui/icons-material/Palette";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import AddCardIcon from "@mui/icons-material/AddCard";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
-//Transition animation
-import { motion } from "framer-motion";
 //Currency list
 import { currencies } from "./config";
 
@@ -138,7 +136,6 @@ function Settings() {
   //Contexts
   const { mobileResolution, commonWindowSize } = useContext(ResolutionContext);
   const { isLightTheme, switchTheme } = useContext(ThemeContext);
-  const { transition } = useContext(TransitionContext);
   const { chosenCurrency, setChosenCurrency } = useContext(SettingsContext);
   //Selected elements state
   const [selectedElements, setSelectedElements] = useState({
@@ -181,11 +178,7 @@ function Settings() {
   const spendingElementArrays = [tempTags, tempGroups, tempItems];
 
   return (
-    <motion.div
-      initial={transition.initial}
-      animate={transition.animate}
-      exit={transition.exit}
-    >
+    <Fragment>
       <DbElementPopup
         isOpen={dbElementPopupOpen}
         close={closeDbElementPopup}
@@ -290,7 +283,7 @@ function Settings() {
           </MyBox>
         </Paper>
       </Box>
-    </motion.div>
+    </Fragment>
   );
 }
 

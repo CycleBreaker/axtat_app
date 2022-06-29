@@ -15,6 +15,7 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import Autocomplete from "@mui/material/Autocomplete";
+import Grid from "@mui/material/Grid";
 //Icons
 import SendIcon from "@mui/icons-material/Send";
 //Calendar
@@ -143,13 +144,28 @@ export default function NewEntryPopup(props) {
               </Button>
             </ButtonGroup>
             <form style={formSpacing}>
-              <Stack direction="row" spacing={1}>
-                <TextField label="Date" variant="standard" />
-                <Button variant="outlined">Today</Button>
-                <Button variant="contained" onClick={openCalendar}>
-                  Pick date
-                </Button>
-              </Stack>
+              <Grid
+                container
+                spacing={1}
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-around",
+                }}
+              >
+                <Grid item xs={12} sm={5} sx={{ width: "100%" }}>
+                  <TextField label="Date" variant="standard" fullWidth />
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <Button variant="outlined">Today</Button>
+                </Grid>
+                <Grid item xs={6} sm={4}>
+                  <Button variant="contained" onClick={openCalendar}>
+                    Pick date
+                  </Button>
+                </Grid>
+              </Grid>
               <TextField
                 label="Sum"
                 variant="outlined"

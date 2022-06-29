@@ -5,7 +5,6 @@ import NewStatPopup from "./NewStatPopup";
 import DbElementDeletePopup from "./DbElementDeletePopup";
 //Contexts
 import { ResolutionContext } from "./contexts/ResolutionContext";
-import { TransitionContext } from "./contexts/TransitionContext";
 //MUI elements
 import Fab from "@mui/material/Fab";
 import Box from "@mui/material/Box";
@@ -14,13 +13,10 @@ import AddIcon from "@mui/icons-material/Add";
 //Drag and Drop
 import { SortableContainer, SortableElement } from "react-sortable-hoc";
 import { arrayMoveImmutable as arrayMove } from "array-move";
-//Transition animation
-import { motion } from "framer-motion";
 
 function Statistics(props) {
   //Contexts
   const { tabletResolution, commonWindowSize } = useContext(ResolutionContext);
-  const { transition } = useContext(TransitionContext);
 
   //Temporary DnD stuff
   const [windowOrder, setWindowOrder] = useState([
@@ -79,38 +75,32 @@ function Statistics(props) {
       >
         <AddIcon />
       </Fab>
-      <motion.div
-        initial={transition.initial}
-        animate={transition.animate}
-        exit={transition.exit}
-      >
-        <Box sx={commonWindowSize}>
-          <NewStatPopup
-            open={popupOpen}
-            closeFn={closePopup}
-            selectedWindow={currentWindow}
-          />
-          <DbElementDeletePopup
-            isOpen={deletePopupOpen}
-            close={closeDeletePopup}
-            item={currentWindow}
-            itemType="stat"
-          />
-          <DraggableStatWindowList onSortEnd={onSortEnd} pressDelay={200}>
-            <div>
-              {windowOrder.map((wd, i) => (
-                <DraggableStatWindow
-                  key={i}
-                  name={wd}
-                  index={i}
-                  openEditPopup={openPopup}
-                  openDeletePopup={openDeletePopup}
-                />
-              ))}
-            </div>
-          </DraggableStatWindowList>
-        </Box>
-      </motion.div>
+      <Box sx={commonWindowSize}>
+        <NewStatPopup
+          open={popupOpen}
+          closeFn={closePopup}
+          selectedWindow={currentWindow}
+        />
+        <DbElementDeletePopup
+          isOpen={deletePopupOpen}
+          close={closeDeletePopup}
+          item={currentWindow}
+          itemType="stat"
+        />
+        <DraggableStatWindowList onSortEnd={onSortEnd} pressDelay={200}>
+          <div>
+            {windowOrder.map((wd, i) => (
+              <DraggableStatWindow
+                key={i}
+                name={wd}
+                index={i}
+                openEditPopup={openPopup}
+                openDeletePopup={openDeletePopup}
+              />
+            ))}
+          </div>
+        </DraggableStatWindowList>
+      </Box>
     </Fragment>
   );
 }
