@@ -1,4 +1,4 @@
-import React, { useState, useContext, memo } from "react";
+import React, { Fragment, useState, useContext, useEffect, memo } from "react";
 import "./Finances.css";
 import { TransitionGroup } from "react-transition-group";
 import { useLocation } from "react-router-dom";
@@ -6,10 +6,11 @@ import { useLocation } from "react-router-dom";
 import NewEntryPopup from "./NewEntryPopup";
 import EntryPopup from "./EntryPopup";
 import DbElementDeletePopup from "./DbElementDeletePopup";
+import LoadingElement from "./LoadingElement";
 //Contexts
 import { ResolutionContext } from "./contexts/ResolutionContext";
 import { ThemeContext } from "./contexts/ThemeContext";
-import { SettingsContext } from "./contexts/SettingsContext";
+import { UserDataContext } from "./contexts/UserDataContext";
 //MUI elements
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
@@ -18,8 +19,10 @@ import Grid from "@mui/material/Grid";
 import Divider from "@mui/material/Divider";
 import Collapse from "@mui/material/Collapse";
 import Footer from "./Footer";
+import Typography from "@mui/material/Typography";
 //Icons
 import AddIcon from "@mui/icons-material/Add";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 //ChartJS elements
 import { Line } from "react-chartjs-2";
 import { Chart } from "chart.js/auto";
@@ -188,11 +191,20 @@ const tempTableEntry = [
 
 //Entry table row component
 const EntryTableRow = function (props) {
-  const { entry, index, openEntryPopup, chosenCurrency } = props;
+  const { entry, index, openEntryPopup, userSettings } = props;
   const { isLightTheme, lightTheme, darkTheme } = useContext(ThemeContext);
 
   const entryClick = function () {
     openEntryPopup(entry);
+  };
+
+  const selectIcon = function () {
+    const groupIcon = userSettings.groups.find((gr) => gr.name === entry.group);
+    if (groupIcon) {
+      return groupIcon.icon;
+    } else {
+      return entry.icon;
+    }
   };
 
   return (
@@ -209,7 +221,7 @@ const EntryTableRow = function (props) {
             alignItems: "center",
           }}
         >
-          {entry.smiley}
+          {selectIcon()}
         </Grid>
         <Grid
           item
@@ -254,11 +266,34 @@ const EntryTableRow = function (props) {
           }
         >
           {entry.isSpending
-            ? "-" + entry.sum + chosenCurrency.symbol
-            : "+" + entry.sum + chosenCurrency.symbol}
+            ? "-" +
+              entry.sum +
+              `${userSettings.currency ? userSettings.currency.symbol : null}`
+            : "+" +
+              entry.sum +
+              `${userSettings.currency ? userSettings.currency.symbol : null}`}
         </Grid>
       </Grid>
-      {index !== tempTableEntry.length - 1 && <Divider />}
+      {index !== tempTableEntry.length - 1 || (index !== 0 && <Divider />)}
+    </Box>
+  );
+};
+
+const NoEntryText = function () {
+  return (
+    <Box
+      sx={{
+        width: "100%",
+        height: "200px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Typography>
+        Press <AddCircleIcon sx={{ transform: "translateY(6px)" }} /> to add
+        your first entry
+      </Typography>
     </Box>
   );
 };
@@ -267,7 +302,14 @@ function Finances(props) {
   const location = useLocation();
   //Contexts
   const { tabletResolution, commonWindowSize } = useContext(ResolutionContext);
-  const { chosenCurrency } = useContext(SettingsContext);
+  const {
+    user,
+    downloadUserData,
+    userEntries,
+    sessionSettings,
+    setSessionSettings,
+    userSettings,
+  } = useContext(UserDataContext);
   //New Entry popup
   const [newEntryPopupOpen, setNewEntryPopupOpen] = useState(false);
   const openNewEntryPopup = () => setNewEntryPopupOpen(true);
@@ -293,6 +335,10 @@ function Finances(props) {
   const openDeletePopup = () => setDeletePopupOpen(true);
   const closeDeletePopup = () => setDeletePopupOpen(false);
 
+  useEffect(() => {
+    setTimeout(() => setSessionSettings({ appLoaded: true }), 500);
+  }, []);
+
   return (
     <Scrollbars
       style={{
@@ -300,74 +346,93 @@ function Finances(props) {
         height: "100vh",
       }}
     >
-      <Fab
-        color="primary"
-        sx={{
-          margin: 0,
-          top: "auto",
-          right: tabletResolution ? 50 : "15%",
-          bottom: 80,
-          left: "auto",
-          position: "fixed",
-          display: location.pathname === "/finances" ? null : "none",
-        }}
-        onClick={openNewEntryPopup}
-        className="slide-in-bottom3"
-      >
-        <AddIcon />
-      </Fab>
-      <Box sx={commonWindowSize}>
-        <NewEntryPopup
-          open={newEntryPopupOpen}
-          closeFn={closeNewEntryPopup}
-          editMode={newPopupEntryEditMode}
-        />
-        <EntryPopup
-          entry={currentEntry}
-          open={entryPopupOpen}
-          closeFn={closeEntryPopup}
-          openEditWindow={openEditEntryPopup}
-          openDeleteWindow={openDeletePopup}
-        />
-        <DbElementDeletePopup
-          isOpen={deletePopupOpen}
-          close={closeDeletePopup}
-          item={currentEntry.id}
-          itemType="entry"
-        />
-        <Grid container spacing={2}>
-          <Grid item xs={12} sx={{ width: "100%" }}>
-            <Paper elevation={3} className="slide-in-bottom">
-              <Box sx={{ p: 2 }}>
-                <Box sx={{ textAlign: "right" }}>9 May 2022 - 9 May 2023</Box>
-                <Line data={tempChartDataObject} options={{ scale: 0.5 }} />
-              </Box>
-            </Paper>
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            sx={{ width: "100%" }}
-            className="slide-in-bottom2"
+      {user.userLoggedIn ? (
+        <Fragment>
+          <Fab
+            color="primary"
+            sx={{
+              margin: 0,
+              top: "auto",
+              right: tabletResolution ? 50 : "15%",
+              bottom: 80,
+              left: "auto",
+              position: "fixed",
+              display: location.pathname === "/finances" ? null : "none",
+            }}
+            onClick={openNewEntryPopup}
+            className={sessionSettings.appLoaded ? null : "slide-in-bottom3"}
           >
-            <Paper elevation={3}>
-              <TransitionGroup sx={{ width: "inherit" }}>
-                {tempTableEntry.map((entry, i) => (
-                  <Collapse sx={{ width: "inherit" }} key={entry.id}>
-                    <EntryTableRow
-                      index={i}
-                      entry={entry}
-                      openEntryPopup={openEntryPopup}
-                      chosenCurrency={chosenCurrency}
-                    />
-                  </Collapse>
-                ))}
-              </TransitionGroup>
-            </Paper>
-          </Grid>
-        </Grid>
-      </Box>
-      <Footer />
+            <AddIcon />
+          </Fab>
+          <Box sx={commonWindowSize}>
+            <NewEntryPopup
+              open={newEntryPopupOpen}
+              closeFn={closeNewEntryPopup}
+              editMode={newPopupEntryEditMode}
+            />
+            <EntryPopup
+              entry={currentEntry}
+              open={entryPopupOpen}
+              closeFn={closeEntryPopup}
+              openEditWindow={openEditEntryPopup}
+              openDeleteWindow={openDeletePopup}
+            />
+            <DbElementDeletePopup
+              isOpen={deletePopupOpen}
+              close={closeDeletePopup}
+              item={currentEntry.id}
+              itemType="entry"
+            />
+            <Grid container spacing={2}>
+              <Grid item xs={12} sx={{ width: "100%" }}>
+                <Paper
+                  elevation={3}
+                  className={
+                    sessionSettings.appLoaded ? null : "slide-in-bottom"
+                  }
+                >
+                  <Box sx={{ p: 2 }}>
+                    <Box sx={{ textAlign: "right" }}>
+                      9 May 2022 - 9 May 2023
+                    </Box>
+                    <Line data={tempChartDataObject} options={{ scale: 0.5 }} />
+                  </Box>
+                </Paper>
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                sx={{ width: "100%" }}
+                className={
+                  sessionSettings.appLoaded ? null : "slide-in-bottom2"
+                }
+              >
+                {userEntries.length === 0 ? (
+                  <NoEntryText />
+                ) : (
+                  <Paper elevation={3}>
+                    <TransitionGroup sx={{ width: "inherit" }}>
+                      {userEntries.map((entry, i) => (
+                        <Collapse sx={{ width: "inherit" }} key={entry.id}>
+                          <EntryTableRow
+                            index={i}
+                            entry={entry}
+                            openEntryPopup={openEntryPopup}
+                            userSettings={userSettings}
+                          />
+                        </Collapse>
+                      ))}
+                    </TransitionGroup>
+                  </Paper>
+                )}
+              </Grid>
+            </Grid>
+          </Box>
+          <Footer />
+        </Fragment>
+      ) : (
+        <LoadingElement />
+      )}
     </Scrollbars>
   );
 }

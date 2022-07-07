@@ -1,12 +1,12 @@
-import React, { useState, useContext, memo } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { Fragment, useState, useContext, useEffect, memo } from "react";
 //App components
 import DbElementPopup from "./DbElementPopup";
 import DbElementDeletePopup from "./DbElementDeletePopup";
+import LoadingElement from "./LoadingElement";
 //Contexts
 import { ResolutionContext } from "./contexts/ResolutionContext";
 import { ThemeContext } from "./contexts/ThemeContext";
-import { SettingsContext } from "./contexts/SettingsContext";
+import { UserDataContext } from "./contexts/UserDataContext";
 //MUI elements
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
@@ -90,7 +90,7 @@ const ElementEditRow = (prps) => (
       }
     >
       <Select value={prps.list[1]} sx={{ transform: "translateY(-10px)" }}>
-        {prps.list.map((tg) => (
+        {prps.list?.map((tg) => (
           <MenuItem key={tg} value={tg}>
             {tg}
           </MenuItem>
@@ -138,8 +138,13 @@ function Settings() {
   //Contexts
   const { mobileResolution, commonWindowSize } = useContext(ResolutionContext);
   const { isLightTheme, switchTheme } = useContext(ThemeContext);
-  const { chosenCurrency, setChosenCurrency } = useContext(SettingsContext);
+  const { logout, user, userSettings } = useContext(UserDataContext);
   //Selected elements state
+  const [chosenCurrency, setChosenCurrency] = useState({
+    name: "Ukrainian Hryvnia",
+    symbol: "₴",
+    code: "UAH",
+  });
   const [selectedElements, setSelectedElements] = useState({
     tag: "Family",
     group: "Transportation",
@@ -159,9 +164,6 @@ function Settings() {
     closeDeletePopup();
     setItemToDelete({ item: "", itemType: "" });
   };
-  //Log out function (probably needs to be placed elsewhere)
-  const navigate = useNavigate();
-  const logout = () => navigate("/");
 
   //Temporary database elements
   const tempTags = ["Me", "Family", "Woman"];
@@ -171,13 +173,22 @@ function Settings() {
   //Temporary DB Element Popup options
   const tempOptions = {
     editMode: false,
-    elementType: "Group",
-    elementName: "Food",
+    elementType: "Tag",
+    elementName: "Me",
   };
 
   //Spending elements lists for mapping
   const spendingElementNames = ["Tags", "Groups", "Items"];
-  const spendingElementArrays = [tempTags, tempGroups, tempItems];
+  const spendingElementArrays = [
+    userSettings.tags?.map((tg) => tg.name),
+    userSettings.groups?.map((gr) => gr.name),
+    userSettings.items?.map((itm) => itm.name),
+  ];
+
+  //Get settings on mount
+  useEffect(() => {
+    setChosenCurrency(userSettings.currency);
+  });
 
   return (
     <Scrollbars
@@ -186,111 +197,121 @@ function Settings() {
         height: "100vh",
       }}
     >
-      <DbElementPopup
-        isOpen={dbElementPopupOpen}
-        close={closeDbElementPopup}
-        options={tempOptions}
-      />
-      <DbElementDeletePopup
-        isOpen={deletePopupOpen}
-        close={closeDeletePopupAndClear}
-        item={itemToDelete.item}
-        itemType={itemToDelete.itemType}
-      />
-      <Box sx={commonWindowSize}>
-        <Paper elevation={3}>
-          <Typography sx={{ textAlign: "center", pt: 2 }} variant="h4">
-            Settings
-          </Typography>
-          <Stack direction="row" sx={{ ml: 2, pt: 3 }}>
-            <PaletteIcon sx={{ transform: "translate(-4px, 4px)" }} />
-            <Typography variant="h5">Theme and currency</Typography>
-          </Stack>
-          <MyDivider />
-          <MyBox>
-            <Stack direction="row" spacing={1}>
-              <Typography sx={{ transform: "translateY(7px)" }}>
-                Dark theme
+      {userSettings.currency ? (
+        <Fragment>
+          <DbElementPopup
+            isOpen={dbElementPopupOpen}
+            close={closeDbElementPopup}
+            options={tempOptions}
+          />
+          <DbElementDeletePopup
+            isOpen={deletePopupOpen}
+            close={closeDeletePopupAndClear}
+            item={itemToDelete.item}
+            itemType={itemToDelete.itemType}
+          />
+          <Box sx={commonWindowSize}>
+            <Paper elevation={3}>
+              <Typography sx={{ textAlign: "center", pt: 2 }} variant="h4">
+                Settings
               </Typography>
-              <Switch checked={!isLightTheme} onChange={switchTheme} />
-            </Stack>
-            <Stack
-              direction={mobileResolution ? "column" : "row"}
-              spacing={1}
-              sx={{ width: mobileResolution ? "100%" : "50%" }}
-            >
-              <Typography
-                sx={
-                  mobileResolution
-                    ? { textAlign: "center" }
-                    : { transform: "translateY(15px)" }
-                }
-              >
-                Currency
-              </Typography>
-              <Autocomplete
-                disablePortal
-                options={Object.values(currencies).map(
-                  (val) => `${val.name} (${val.symbol})`
-                )}
-                fullWidth
-                value={`${chosenCurrency.name} (${chosenCurrency.symbol})`}
-                renderInput={(params) => (
-                  <TextField {...params} label="Currency" />
-                )}
-              />
-            </Stack>
-          </MyBox>
-          <Stack direction="row" sx={{ ml: 2, pt: 3 }}>
-            <CreditCardIcon sx={{ transform: "translate(-4px, 4px)" }} />
-            <Typography variant="h5">Database elements: spending</Typography>
-          </Stack>
-          <MyDivider />
-          <MyBox>
-            {spendingElementNames.map((el, ar) => (
-              <ElementEditRow
-                key={el}
-                title={el}
-                list={spendingElementArrays[ar]}
-                mobileResolution={mobileResolution}
-                openDbElementPopup={openDbElementPopup}
-                isLightTheme={isLightTheme}
-                selectedElements={selectedElements}
-                setItemToDelete={setItemToDelete}
-                openDeletePopup={openDeletePopup}
-              />
-            ))}
-          </MyBox>
-          <Stack direction="row" sx={{ ml: 2, pt: 3 }}>
-            <AddCardIcon sx={{ transform: "translate(-4px, 4px)" }} />
-            <Typography variant="h5">Database elements: income</Typography>
-          </Stack>
-          <MyDivider />
-          <MyBox>
-            <ElementEditRow
-              title="Sources"
-              list={tempSources}
-              mobileResolution={mobileResolution}
-              openDbElementPopup={openDbElementPopup}
-              isLightTheme={isLightTheme}
-              selectedElements={selectedElements}
-              setItemToDelete={setItemToDelete}
-              openDeletePopup={openDeletePopup}
-            />
-          </MyBox>
-          <Stack direction="row" sx={{ ml: 2, pt: 3 }}>
-            <ManageAccountsIcon sx={{ transform: "translate(-4px, 4px)" }} />
-            <Typography variant="h5">Account</Typography>
-          </Stack>
-          <MyDivider />
-          <MyBox>
-            <Button variant="outlined" sx={{ mb: 2 }} onClick={logout}>
-              Log out
-            </Button>
-          </MyBox>
-        </Paper>
-      </Box>
-      <Footer />
+              <Stack direction="row" sx={{ ml: 2, pt: 3 }}>
+                <PaletteIcon sx={{ transform: "translate(-4px, 4px)" }} />
+                <Typography variant="h5">Theme and currency</Typography>
+              </Stack>
+              <MyDivider />
+              <MyBox>
+                <Stack direction="row" spacing={1}>
+                  <Typography sx={{ transform: "translateY(7px)" }}>
+                    Dark theme
+                  </Typography>
+                  <Switch checked={!isLightTheme} onChange={switchTheme} />
+                </Stack>
+                <Stack
+                  direction={mobileResolution ? "column" : "row"}
+                  spacing={1}
+                  sx={{ width: mobileResolution ? "100%" : "50%" }}
+                >
+                  <Typography
+                    sx={
+                      mobileResolution
+                        ? { textAlign: "center" }
+                        : { transform: "translateY(15px)" }
+                    }
+                  >
+                    Currency
+                  </Typography>
+                  <Autocomplete
+                    disablePortal
+                    options={Object.values(currencies).map(
+                      (val) => `${val.name} (${val.symbol})`
+                    )}
+                    fullWidth
+                    value={`${chosenCurrency?.name} (${chosenCurrency?.symbol})`}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Currency" />
+                    )}
+                  />
+                </Stack>
+              </MyBox>
+              <Stack direction="row" sx={{ ml: 2, pt: 3 }}>
+                <CreditCardIcon sx={{ transform: "translate(-4px, 4px)" }} />
+                <Typography variant="h5">
+                  Database elements: spending
+                </Typography>
+              </Stack>
+              <MyDivider />
+              <MyBox>
+                {spendingElementNames.map((el, ar) => (
+                  <ElementEditRow
+                    key={el}
+                    title={el}
+                    list={spendingElementArrays[ar]}
+                    mobileResolution={mobileResolution}
+                    openDbElementPopup={openDbElementPopup}
+                    isLightTheme={isLightTheme}
+                    selectedElements={selectedElements}
+                    setItemToDelete={setItemToDelete}
+                    openDeletePopup={openDeletePopup}
+                  />
+                ))}
+              </MyBox>
+              <Stack direction="row" sx={{ ml: 2, pt: 3 }}>
+                <AddCardIcon sx={{ transform: "translate(-4px, 4px)" }} />
+                <Typography variant="h5">Database elements: income</Typography>
+              </Stack>
+              <MyDivider />
+              <MyBox>
+                <ElementEditRow
+                  title="Sources"
+                  list={userSettings.sources?.map((src) => src.name)}
+                  mobileResolution={mobileResolution}
+                  openDbElementPopup={openDbElementPopup}
+                  isLightTheme={isLightTheme}
+                  selectedElements={selectedElements}
+                  setItemToDelete={setItemToDelete}
+                  openDeletePopup={openDeletePopup}
+                />
+              </MyBox>
+              <Stack direction="row" sx={{ ml: 2, pt: 3 }}>
+                <ManageAccountsIcon
+                  sx={{ transform: "translate(-4px, 4px)" }}
+                />
+                <Typography variant="h5">Account: {user.name}</Typography>
+              </Stack>
+              <MyDivider />
+              <MyBox>
+                <Button variant="outlined" sx={{ mb: 2 }} onClick={logout}>
+                  Log out
+                </Button>
+              </MyBox>
+            </Paper>
+          </Box>
+          <Footer />
+        </Fragment>
+      ) : (
+        <LoadingElement />
+      )}
     </Scrollbars>
   );
 }

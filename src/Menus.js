@@ -1,19 +1,19 @@
-import React, { Fragment, useState, useContext, memo } from "react";
+import React, { Fragment, useState, useContext, useEffect, memo } from "react";
 import {
   Link,
   NavLink,
   useMatch,
-  useNavigate,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
 //App Components
-import Footer from "./Footer";
 import Logo from "./Logo";
 import { navLinkBgColorLight, navLinkBgColorDark } from "./config";
 //Contexts
 import { ResolutionContext } from "./contexts/ResolutionContext";
 import { ThemeContext } from "./contexts/ThemeContext";
 import { TransitionContext } from "./contexts/TransitionContext";
+import { UserDataContext } from "./contexts/UserDataContext";
 //MUI elements
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -32,14 +32,17 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import SettingsIcon from "@mui/icons-material/Settings";
+//Firebase
+import firebase from "firebase/compat/app";
 
 function Menus(props) {
-  const navigate = useNavigate();
   const location = useLocation();
+  const navigate = useNavigate();
 
   //Contexts
   const { isLightTheme, switchTheme } = useContext(ThemeContext);
   const { pageDirection } = useContext(TransitionContext);
+  const { logout } = useContext(UserDataContext);
 
   //Check to hide menus on Login screen
   const isLoginScreen = useMatch("/");
@@ -73,7 +76,7 @@ function Menus(props) {
   };
   const gotoLogout = () => {
     closeMenu();
-    navigate("/");
+    logout();
   };
 
   //Bottom menu functions
@@ -82,6 +85,15 @@ function Menus(props) {
       setCurrentScreen(v);
     }
   };
+
+  //Security check
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged(function (user) {
+      if (!user && location.pathname !== "/") {
+        navigate("/");
+      }
+    });
+  });
 
   return (
     <Fragment>

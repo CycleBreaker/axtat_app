@@ -12,7 +12,7 @@ import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 //Contexts
-import { SettingsContext } from "./contexts/SettingsContext";
+import { UserDataContext } from "./contexts/UserDataContext";
 import { ThemeContext } from "./contexts/ThemeContext";
 //Helpers
 import { lightTheme, darkTheme } from "./themes";
@@ -59,7 +59,7 @@ const Tag = function (prps) {
 
 export default function EntryPopup(props) {
   const { open, closeFn, entry, openEditWindow, openDeleteWindow } = props;
-  const { chosenCurrency } = useContext(SettingsContext);
+  const { userSettings } = useContext(UserDataContext);
   const { isLightTheme } = useContext(ThemeContext);
 
   const dateFormat = {
@@ -70,40 +70,18 @@ export default function EntryPopup(props) {
     year: "numeric",
   };
 
-  //Old Tag css that I don't like anymore
-  /*
-  const Tag = function (prps) {
-    const StyledTag = styled.div`
-      display: inline-block;
-      margin: 5px 15px 5px 5px;
-      padding: 10px;
-      background-color: ${prps.color};
-      width: fit-content;
-      border-radius: 10px;
-      position: relative;
-      box-sizing: border-box;
-      &:after {
-        position: absolute;
-        content: "\\25CF";
-        color: white;
-        text-shadow: 0 0 1px #333;
-        font-size: 150%;
-        line-height: 0;
-        text-indent: 12px;
-        left: -22px;
-        top: 4px;
-        width: 1px;
-        border-right: 24px solid ${prps.color};
-        border-top: 15px solid transparent;
-        border-bottom: 21px solid transparent;
+  const selectIcon = function () {
+    if (userSettings.groups) {
+      const groupIcon = userSettings.groups.find(
+        (gr) => gr.name === entry.group
+      );
+      if (groupIcon) {
+        return groupIcon.icon;
+      } else {
+        return entry.icon;
       }
-    `;
-
-    return (
-      <StyledTag style={{ transform: "scale(0.7)" }}>{prps.tag}</StyledTag>
-    );
+    }
   };
-  */
 
   //Temporary tag colors
   const tempTagColors = ["#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"];
@@ -125,7 +103,7 @@ export default function EntryPopup(props) {
               transform: "translate(-50%, -85px)",
             }}
           >
-            {entry.smiley}
+            {selectIcon()}
           </div>
         </div>
         <Typography variant="caption">
@@ -143,7 +121,8 @@ export default function EntryPopup(props) {
           <Typography variant="h5">{entry.item}</Typography>
         ) : null}
         <Typography variant="h3">
-          {entry.sum + chosenCurrency.symbol}
+          {entry.sum +
+            `${userSettings.currency ? userSettings.currency.symbol : null}`}
         </Typography>
         <Box
           sx={{

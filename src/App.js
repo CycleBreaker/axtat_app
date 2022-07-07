@@ -9,23 +9,23 @@ import AnimatedRoutes from "./AnimatedRoutes";
 import { ResolutionContextProvider } from "./contexts/ResolutionContext";
 import { ThemeContextProvider } from "./contexts/ThemeContext";
 import { TransitionContextProvider } from "./contexts/TransitionContext";
-import { SettingsContextProvider } from "./contexts/SettingsContext";
+import { UserDataContextProvider } from "./contexts/UserDataContext";
 
 function App() {
   return (
     <ThemeContextProvider>
-      <SettingsContextProvider>
-        <ResolutionContextProvider>
-          <TransitionContextProvider>
+      <ResolutionContextProvider>
+        <TransitionContextProvider>
+          <UserDataContextProvider>
             <CssBaseline />
             <BrowserRouter>
               <Menus>
                 <AnimatedRoutes />
               </Menus>
             </BrowserRouter>
-          </TransitionContextProvider>
-        </ResolutionContextProvider>
-      </SettingsContextProvider>
+          </UserDataContextProvider>
+        </TransitionContextProvider>
+      </ResolutionContextProvider>
     </ThemeContextProvider>
   );
 }
