@@ -3,7 +3,7 @@ import React, { createContext, useState } from "react";
 import { db } from "../firebaseConfig";
 //Firebase
 import firebase from "firebase/compat/app";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 export const UserDataContext = createContext();
@@ -19,40 +19,61 @@ export function UserDataContextProvider(props) {
     appLoaded: false,
   });
   const [userEntries, setUserEntries] = useState(new Array());
-  const [userSettings, setUserSettings] = useState(new Object());
+  const [userSettings, setUserSettings] = useState({
+    currency: { name: "Ukrainian Hryvnia", symbol: "₴" },
+    tags: [{ color: 1, name: "Me" }],
+    groups: [{ name: "Food", icon: "🍗" }],
+    items: [{ name: "Home-Cooked", parent: "Food" }],
+    sources: [{ name: "Salary" }],
+  });
 
   const downloadUserData = async function () {
-    console.log("downloading data...");
     const userDatabaseRef = collection(db, user.id);
-    let receivedData = new Object();
-    receivedData = await getDocs(userDatabaseRef);
-    const decipheredEntries = new Array();
-    const decipheredSettings = new Object();
-    receivedData.docs.map((ent) => {
-      if (ent.id !== "settings") {
-        decipheredEntries.push({
-          id: ent.id,
-          isSpending: ent.data().isSpending,
-          date: ent.data().date.seconds * 1000,
-          sum: ent.data().sum,
-          icon: ent.data().icon,
-          tags: ent.data().tags,
-          group: ent.data().group,
-          item: ent.data().item,
-          source: ent.data().source,
-          comment: ent.data().comment,
-        });
-      } else if (ent.id === "settings") {
-        decipheredSettings.currency = ent.data().currency;
-        decipheredSettings.tags = ent.data().tags;
-        decipheredSettings.groups = ent.data().groups;
-        decipheredSettings.items = ent.data().items;
-        decipheredSettings.sources = ent.data().sources;
-      }
+    await getDocs(userDatabaseRef).then((dt) => {
+      updateUserEntries(dt);
+      updateSettings(dt);
     });
-    setUserEntries(decipheredEntries);
-    setUserSettings(decipheredSettings);
-    setUser({ ...user, entriesLoaded: true });
+  };
+
+  const updateUserEntries = async function () {
+    const userDatabaseRef = collection(db, user.id);
+    await getDocs(userDatabaseRef).then((dt) => {
+      const decipheredEntries = new Array();
+      dt.docs.map((ent) => {
+        if (ent.id !== "settings") {
+          decipheredEntries.push({
+            id: ent.id,
+            isSpending: ent.data().isSpending,
+            date: ent.data().date.seconds * 1000,
+            sum: ent.data().sum,
+            icon: ent.data().icon,
+            tags: ent.data().tags,
+            group: ent.data().group,
+            item: ent.data().item,
+            source: ent.data().source,
+            comment: ent.data().comment,
+          });
+        }
+      });
+      setUserEntries(decipheredEntries);
+      setUser({ ...user, entriesLoaded: true });
+    });
+  };
+
+  const updateSettings = async function () {
+    const userSettingsRef = doc(db, `${user.id}/settings`);
+    console.log(userSettingsRef);
+    const userSettingsSnap = await getDoc(userSettingsRef);
+    if (userSettingsSnap.exists()) {
+      console.log(userSettingsSnap);
+      setUserSettings({
+        currency: userSettingsSnap.data().currency,
+        tags: userSettingsSnap.data().tags,
+        groups: userSettingsSnap.data().groups,
+        items: userSettingsSnap.data().items,
+        sources: userSettingsSnap.data().sources,
+      });
+    }
   };
 
   const logout = function () {
@@ -89,6 +110,8 @@ export function UserDataContextProvider(props) {
         logout,
         sessionSettings,
         setSessionSettings,
+        updateUserEntries,
+        updateSettings,
       }}
     >
       {props.children}

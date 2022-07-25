@@ -16,6 +16,7 @@ import { UserDataContext } from "./contexts/UserDataContext";
 import { ThemeContext } from "./contexts/ThemeContext";
 //Helpers
 import { lightTheme, darkTheme } from "./themes";
+import { dateFormatWithTime } from "./config";
 
 //Transition animation
 const ZoomTransition = forwardRef(function SlideTransition(props, ref) {
@@ -62,14 +63,6 @@ export default function EntryPopup(props) {
   const { userSettings } = useContext(UserDataContext);
   const { isLightTheme } = useContext(ThemeContext);
 
-  const dateFormat = {
-    hour: "numeric",
-    minute: "numeric",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  };
-
   const selectIcon = function () {
     if (userSettings.groups) {
       const groupIcon = userSettings.groups.find(
@@ -107,7 +100,7 @@ export default function EntryPopup(props) {
           </div>
         </div>
         <Typography variant="caption">
-          {new Intl.DateTimeFormat("en-IE", dateFormat).format(
+          {new Intl.DateTimeFormat("en-IE", dateFormatWithTime).format(
             new Date(entry.date)
           )}
         </Typography>

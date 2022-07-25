@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@emoji-mart/data": "^1.0.3",
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^5.8.0",
@@ -14,6 +15,7 @@
     "@welldone-software/why-did-you-render": "^7.0.1",
     "array-move": "^4.0.0",
     "chart.js": "^3.7.1",
+    "dotenv": "^16.0.1",
     "emoji-picker-react": "^3.5.1",
     "firebase": "^9.8.4",
     "firebaseui": "^6.0.1",
@@ -48,5 +50,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "dotenv-webpack": "^7.1.1"
   }
 }

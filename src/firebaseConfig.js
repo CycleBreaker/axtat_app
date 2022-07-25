@@ -2,7 +2,7 @@ import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
-import { getFirestore, collection } from "firebase/firestore/lite";
+import { getFirestore } from "firebase/firestore/lite";
 
 // Your web app's Firebase configuration
 /*

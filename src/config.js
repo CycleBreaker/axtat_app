@@ -1,33 +1,32 @@
+export const dateFormat = {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+};
+export const dateFormatWithTime = {
+  hour: "numeric",
+  minute: "numeric",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+};
+
 export const navLinkBgColorLight = "rgba(255, 255, 255, 0.3)";
 export const navLinkBgColorDark = "rgba(255, 231, 92, 0.3)";
 
-export const tagColorSetLight = [
-  "#E80909",
-  "#FF006E",
-  "#FB5607",
-  "#FFBE0B",
-  "#FFEF3D",
-  "#9AFF57",
-  "#37FF00",
-  "#39EDBD",
-  "#00FFE5",
-  "#3A86FF",
-  "#9757EF",
-  "#CC39ED",
-];
-export const tagColorSetDark = [
-  "#C50707",
-  "#A30047",
-  "#DD4803",
-  "#B88700",
-  "#CCBB00",
-  "#52CC00",
-  "#1B7A00",
-  "#13CD9C",
-  "#00A393",
-  "#1F75FF",
-  "#7F32EC",
-  "#AB13CD",
+export const colorSet = [
+  { id: 1, light: "#E80909", dark: "#C50707" },
+  { id: 2, light: "#FF006E", dark: "#A30047" },
+  { id: 3, light: "#FB5607", dark: "#DD4803" },
+  { id: 4, light: "#FFBE0B", dark: "#B88700" },
+  { id: 5, light: "#FFEF3D", dark: "#CCBB00" },
+  { id: 6, light: "#9AFF57", dark: "#52CC00" },
+  { id: 7, light: "#37FF00", dark: "#1B7A00" },
+  { id: 8, light: "#39EDBD", dark: "#13CD9C" },
+  { id: 9, light: "#00FFE5", dark: "#00A393" },
+  { id: 10, light: "#3A86FF", dark: "#1F75FF" },
+  { id: 11, light: "#9757EF", dark: "#7F32EC" },
+  { id: 12, light: "#CC39ED", dark: "#AB13CD" },
 ];
 
 export const currencies = {

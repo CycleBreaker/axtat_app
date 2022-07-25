@@ -304,7 +304,6 @@ function Finances(props) {
   const { tabletResolution, commonWindowSize } = useContext(ResolutionContext);
   const {
     user,
-    downloadUserData,
     userEntries,
     sessionSettings,
     setSessionSettings,

@@ -13,17 +13,22 @@ const ZoomTransition = forwardRef(function ZoomTransition(props, ref) {
 });
 
 export default function DbElementDeletePopup(props) {
-  const { isOpen, close, item, itemType } = props;
-
+  const { isOpen, close, item, deleteDbElement } = props;
+  console.log(item);
   const titleMessage = function () {
-    switch (itemType) {
+    switch (item.itemType) {
       case "entry":
         return "this entry";
       case "stat":
-        return `the ${item} Stat Window`;
+        return `the ${item.item} Stat Window`;
       default:
-        return `the ${item} ${itemType}`;
+        return `the ${item.item} ${item.itemType}`;
     }
+  };
+
+  const handleDelete = function () {
+    deleteDbElement(item.itemType.toLowerCase(), item.item);
+    close();
   };
 
   return (
@@ -34,7 +39,7 @@ export default function DbElementDeletePopup(props) {
         <Button onClick={close} autoFocus>
           Cancel
         </Button>
-        <Button onClick={close}>{`Delete ${itemType}`}</Button>
+        {<Button onClick={handleDelete}>{`Delete ${item.itemType}`}</Button>}
       </DialogActions>
     </Dialog>
   );

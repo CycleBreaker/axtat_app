@@ -1,8 +1,17 @@
-import React, { Fragment, forwardRef, useState, useContext } from "react";
+import React, {
+  Fragment,
+  forwardRef,
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+} from "react";
 //Contexts
 import { ThemeContext } from "./contexts/ThemeContext";
+import { UserDataContext } from "./contexts/UserDataContext";
 //Helpers
-import { tagColorSetLight, tagColorSetDark } from "./config";
+import { colorSet } from "./config";
+import { textInput } from "./helpers/customHooks";
 //MUI elements
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
@@ -37,8 +46,56 @@ const formSpacing = {
 };
 
 export default function DbElementPopup(props) {
-  const { isOpen, close, options } = props;
+  const { isOpen, close, options, uploadNewDbElement, updateDbElement } = props;
   const { isLightTheme } = useContext(ThemeContext);
+  const { userSettings } = useContext(UserDataContext);
+
+  //User input
+  const [inputValue, inputHandleChange, inputReset] = textInput(
+    options.editMode ? options.elementName : ""
+  );
+  const handleClose = function () {
+    inputReset();
+    setChosenColor(isLightTheme ? colorSet[0].light : colorSet[0].dark);
+    close();
+  };
+  //Color
+  const [chosenColor, setChosenColor] = useState(
+    options.elementType === "tag"
+      ? isLightTheme
+        ? options.editMode
+          ? colorSet.find((clr) => clr.id === options.editedElement.color).light
+          : colorSet[0].light
+        : options.editMode
+        ? colorSet.find((clr) => clr.id === options.editedElement.color).dark
+        : colorSet[0].dark
+      : null
+  );
+  const handleColorChange = function (e) {
+    setChosenColor(e.hex);
+    closeColorPicker();
+  };
+  //Icon
+  const [chosenIcon, setChosenIcon] = useState(
+    options.editMode
+      ? options.editedElement.icon
+      : options.elementType === "group" || options.elementType === "source"
+      ? options.elementType === "group"
+        ? "😃"
+        : "💸"
+      : null
+  );
+  const handleIconChange = function (e) {
+    setChosenIcon(e.target.textContent);
+    closeSmileyPicker();
+  };
+  //Parent group
+  const [chosenGroup, setChosenGroup] = useState(
+    options.editMode
+      ? options.editedElement.parent
+      : userSettings.groups[0].name
+  );
+  const handleGroupChange = (e) => setChosenGroup(e.target.textContent);
 
   //Dialog states
   const [smileyPickerOpen, setSmileyPickerOpen] = useState(false);
@@ -47,6 +104,100 @@ export default function DbElementPopup(props) {
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const openColorPicker = () => setColorPickerOpen(true);
   const closeColorPicker = () => setColorPickerOpen(false);
+  const [error, setError] = useState(false);
+
+  const handleSubmit = function () {
+    switch (options.elementType) {
+      case "tag":
+        let foundColorId = 0;
+        colorSet.map((clr) => {
+          if (
+            clr.light === chosenColor.toUpperCase() ||
+            clr.dark === chosenColor.toUpperCase()
+          ) {
+            foundColorId = clr.id;
+          }
+        });
+        if (options.editMode) {
+          updateDbElement(
+            options.elementType,
+            {
+              name: inputValue,
+              color: foundColorId,
+            },
+            options.elementName
+          );
+        } else {
+          uploadNewDbElement(options.elementType, {
+            name: inputValue,
+            color: foundColorId,
+          });
+        }
+        break;
+      case "group":
+        if (options.editMode) {
+          updateDbElement(
+            options.elementType,
+            { name: inputValue, icon: chosenIcon },
+            options.editedElement.name
+          );
+        } else {
+          uploadNewDbElement(options.elementType, {
+            name: inputValue,
+            icon: chosenIcon,
+          });
+        }
+      case "item":
+        if (options.editMode) {
+          updateDbElement(
+            options.elementType,
+            {
+              name: inputValue,
+              parent: chosenGroup,
+            },
+            options.editedElement.name
+          );
+        } else {
+          uploadNewDbElement(options.elementType, {
+            name: inputValue,
+            parent: chosenGroup,
+          });
+        }
+      case "source":
+        if (options.editMode) {
+          updateDbElement(
+            options.elementType,
+            { name: inputValue, icon: chosenIcon },
+            options.editedElement.name
+          );
+        } else {
+          uploadNewDbElement(options.elementType, {
+            name: inputValue,
+            icon: chosenIcon,
+          });
+        }
+    }
+    handleClose();
+  };
+
+  useEffect(function () {
+    setError(false);
+    userSettings[options.elementType + "s"].map((el) => {
+      if (el.name === inputValue) {
+        setError(true);
+        if (options.editMode && inputValue === options.elementName) {
+          setError(false);
+        }
+      }
+    });
+    if (options.elementType === "group") {
+      userSettings.groups.map((gr) => {
+        if (gr !== chosenGroup) {
+          setError(true);
+        }
+      });
+    }
+  });
 
   return (
     <Fragment>
@@ -56,7 +207,11 @@ export default function DbElementPopup(props) {
         onClose={closeSmileyPicker}
         sx={{ zIndex: 2000 }}
       >
-        <Picker disableAutoFocus={true} native={true} />
+        <Picker
+          native={true}
+          disableAutoFocus
+          onEmojiClick={handleIconChange}
+        />
       </Dialog>
       <Dialog
         open={colorPickerOpen}
@@ -65,14 +220,19 @@ export default function DbElementPopup(props) {
         sx={{ zIndex: 2000 }}
       >
         <ColorPicker
-          colors={isLightTheme ? tagColorSetLight : tagColorSetDark}
+          colors={
+            isLightTheme
+              ? colorSet.map((clr) => clr.light)
+              : colorSet.map((clr) => clr.dark)
+          }
           width="162px"
+          onChange={handleColorChange}
         />
       </Dialog>
       <Dialog
         open={isOpen}
         TransitionComponent={SlideTransition}
-        onClose={close}
+        onClose={handleClose}
       >
         <Box sx={{ p: 2 }}>
           <Typography variant="h4" sx={{ textAlign: "center" }}>
@@ -88,30 +248,39 @@ export default function DbElementPopup(props) {
                 variant="outlined"
                 fullWidth
                 inputProps={{ maxLength: 14 }}
+                value={inputValue}
+                onChange={inputHandleChange}
+                error={error}
+                helperText={
+                  error
+                    ? `Such ${options.elementType} name already exists`
+                    : null
+                }
               />
-              {options.elementType === "Item" ? (
+              {options.elementType === "item" ? (
                 <Autocomplete
                   fullWidth
-                  options={["Transportaion", "Food", "Life"]}
-                  value={"Transportaion"}
+                  options={userSettings.groups.map((gr) => gr.name)}
+                  value={chosenGroup}
+                  onChange={handleGroupChange}
                   renderInput={(params) => (
                     <TextField {...params} label="Parent group" />
                   )}
                 />
               ) : null}
-              {options.elementType === "Group" ||
-              options.elementType === "Source" ? (
+              {options.elementType === "group" ||
+              options.elementType === "source" ? (
                 <Stack direction="row" spacing={1}>
                   <Typography variant="h6">Icon:</Typography>
                   <IconButton
                     sx={{ transform: "translateY(-9px)" }}
                     onClick={openSmileyPicker}
                   >
-                    😀
+                    {chosenIcon}
                   </IconButton>
                 </Stack>
               ) : null}
-              {options.elementType === "Tag" ? (
+              {options.elementType === "tag" ? (
                 <Stack direction="row" spacing={1}>
                   <Typography variant="h6">Color:</Typography>
                   <IconButton
@@ -123,17 +292,18 @@ export default function DbElementPopup(props) {
                         width: "36px",
                         height: "36px",
                         borderRadius: "50%",
-                        backgroundColor: "red",
+                        backgroundColor: chosenColor,
                       }}
                     />
                   </IconButton>
                 </Stack>
               ) : null}
               <Button
-                type="submit"
                 size="large"
                 sx={{ p: 2 }}
                 variant="contained"
+                disabled={inputValue === "" || error}
+                onClick={handleSubmit}
               >
                 {options.editMode ? "Done" : "Create"}
               </Button>

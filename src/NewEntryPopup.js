@@ -1,7 +1,5 @@
 import React, { Fragment, forwardRef, useState, useContext } from "react";
 import { TransitionGroup } from "react-transition-group";
-//Contexts
-import { ThemeContext } from "./contexts/ThemeContext";
 //MUI elements
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
@@ -10,7 +8,6 @@ import Zoom from "@mui/material/Zoom";
 import Collapse from "@mui/material/Collapse";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
@@ -21,6 +18,12 @@ import SendIcon from "@mui/icons-material/Send";
 //Calendar
 import Calendar from "react-calendar";
 import "./calendarStyling.css";
+//Contexts
+import { ThemeContext } from "./contexts/ThemeContext";
+import { UserDataContext } from "./contexts/UserDataContext";
+//Helpers
+import { dateFormat } from "./config";
+import { textInput } from "./helpers/customHooks";
 
 //Transition animations
 const SlideTransition = forwardRef(function SlideTransition(props, ref) {
@@ -40,40 +43,44 @@ const formSpacing = {
 };
 
 //Input components
-const SpendingInput = (prps) => (
-  <div style={formSpacing}>
-    <Autocomplete
-      multiple
-      options={["Me", "Family", "Business", "Leisure"]}
-      getOptionLabel={(option) => option}
-      defaultValue={["Me"]}
-      fullWidth
-      value={["Me"]}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          variant="standard"
-          label="Tags"
-          placeholder="Start typing..."
-          fullWidth
-        />
-      )}
-    />
-    <Autocomplete
-      fullWidth
-      options={["Food", "Transportation", "Life"]}
-      value={"Food"}
-      renderInput={(params) => <TextField {...params} label="Group" />}
-    />
-    <Autocomplete
-      disablePortal
-      fullWidth
-      options={["Home-cooked", "Alcohol", "Gas"]}
-      value={"Gas"}
-      renderInput={(params) => <TextField {...params} label="Item" />}
-    />
-  </div>
-);
+const SpendingInput = function (prps) {
+  const { tags, chosenTags, inputTags } = prps;
+  return (
+    <div style={formSpacing}>
+      <Autocomplete
+        multiple
+        options={tags.map((tg) => tg.name)}
+        getOptionLabel={(option) => option}
+        defaultValue={[tags[0].name]}
+        fullWidth
+        value={chosenTags.map((tg) => tg.name)}
+        onChange={inputTags}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            variant="standard"
+            label="Tags"
+            placeholder="Start typing..."
+            fullWidth
+          />
+        )}
+      />
+      <Autocomplete
+        fullWidth
+        options={["Food", "Transportation", "Life"]}
+        value={"Food"}
+        renderInput={(params) => <TextField {...params} label="Group" />}
+      />
+      <Autocomplete
+        disablePortal
+        fullWidth
+        options={["Home-cooked", "Alcohol", "Gas"]}
+        value={"Gas"}
+        renderInput={(params) => <TextField {...params} label="Item" />}
+      />
+    </div>
+  );
+};
 
 const IncomeInput = (prps) => (
   <div style={formSpacing}>
@@ -89,18 +96,51 @@ const IncomeInput = (prps) => (
 
 export default function NewEntryPopup(props) {
   const { open, closeFn, editMode } = props;
+  //Contexts
+  const { userSettings } = useContext(UserDataContext);
   //Theming
   const { isLightTheme } = useContext(ThemeContext);
 
   //Entry mode
   const [spendingMode, setSpendingMode] = useState(true);
-  const selectSpendingMode = () => setSpendingMode(true);
-  const selectIncomeMode = () => setSpendingMode(false);
+  const selectSpendingMode = () => {
+    setSpendingMode(true);
+    setFormInput({ ...formInput, isSpending: true });
+  };
+  const selectIncomeMode = () => {
+    setSpendingMode(false);
+    setFormInput({ ...formInput, isSpending: false });
+  };
 
   //Calendar functionality
   const [calendarOpen, setCalendarOpen] = useState(false);
   const openCalendar = () => setCalendarOpen(true);
   const closeCalendar = () => setCalendarOpen(false);
+  const setCurrentDate = () => setFormInput({ ...formInput, date: new Date() });
+  const pickDate = (dt) => setFormInput({ ...formInput, date: dt.getTime() });
+
+  //Form filling
+  const [formInput, setFormInput] = useState({
+    isSpending: true,
+    date: new Date(),
+    sum: "",
+    tags: [userSettings.tags[0]],
+    group: userSettings?.groups[0],
+    item: userSettings?.items[0],
+    source: userSettings?.sources[0],
+    comment: "",
+  });
+  const inputSum = (e) => {
+    const replacedSymbols = e.target.value.replace(/\D+/g, "");
+    setFormInput({ ...formInput, sum: replacedSymbols });
+  };
+  const inputTags = (e, v) => {
+    console.log(v);
+    setFormInput({
+      ...formInput,
+      tags: [(v.map = (tg) => tg.name)],
+    });
+  };
 
   return (
     <Fragment>
@@ -112,6 +152,8 @@ export default function NewEntryPopup(props) {
       >
         <Calendar
           maxDate={new Date()}
+          defaultValue={new Date(formInput.date)}
+          onChange={pickDate}
           className={
             isLightTheme
               ? null
@@ -155,10 +197,19 @@ export default function NewEntryPopup(props) {
                 }}
               >
                 <Grid item xs={12} sm={5} sx={{ width: "100%" }}>
-                  <TextField label="Date" variant="standard" fullWidth />
+                  <TextField
+                    variant="standard"
+                    fullWidth
+                    value={new Intl.DateTimeFormat("en-IE", dateFormat).format(
+                      formInput.date
+                    )}
+                    sx={{ textAlign: "center" }}
+                  />
                 </Grid>
                 <Grid item xs={6} sm={3}>
-                  <Button variant="outlined">Today</Button>
+                  <Button variant="outlined" onClick={setCurrentDate}>
+                    Today
+                  </Button>
                 </Grid>
                 <Grid item xs={6} sm={4}>
                   <Button variant="contained" onClick={openCalendar}>
@@ -170,6 +221,9 @@ export default function NewEntryPopup(props) {
                 label="Sum"
                 variant="outlined"
                 inputProps={{ maxLength: 7 }}
+                value={formInput.sum}
+                onChange={inputSum}
+                autoFocus
               />
               <TransitionGroup style={{ width: "100%" }}>
                 {!spendingMode && (
@@ -179,7 +233,11 @@ export default function NewEntryPopup(props) {
                 )}
                 {spendingMode && (
                   <Collapse key={"spendingInput"}>
-                    <SpendingInput />
+                    <SpendingInput
+                      tags={userSettings.tags}
+                      chosenTags={formInput.tags}
+                      inputTags={inputTags}
+                    />
                   </Collapse>
                 )}
               </TransitionGroup>
@@ -190,11 +248,12 @@ export default function NewEntryPopup(props) {
                 inputProps={{ maxLength: 75 }}
               />
               <Button
-                type="submit"
+                //type="submit"
                 size="large"
                 sx={{ p: 2 }}
                 variant="contained"
                 endIcon={<SendIcon />}
+                onClick={() => console.log(formInput.tags)}
               >
                 {editMode ? "Update" : "Record"}
               </Button>

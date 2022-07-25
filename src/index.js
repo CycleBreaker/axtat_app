@@ -5,7 +5,7 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-console.log(process.env);
+//require("dotenv").config({ debug: true }); //Выдаёт более детальные ошибки касательно .env-файла
 root.render(
   <React.StrictMode>
     <App />
