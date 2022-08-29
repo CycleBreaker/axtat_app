@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useState, memo } from "react";
+import React, { Fragment, useContext, useState, memo, useEffect } from "react";
 //App components
 import StatWindow from "./StatWindow";
 import NewStatPopup from "./NewStatPopup";
@@ -12,6 +12,7 @@ import { UserDataContext } from "./contexts/UserDataContext";
 import Fab from "@mui/material/Fab";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import Snackbar from "@mui/material/Snackbar";
 //Icons
 import AddIcon from "@mui/icons-material/Add";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
@@ -20,6 +21,9 @@ import { SortableContainer, SortableElement } from "react-sortable-hoc";
 import { arrayMoveImmutable as arrayMove } from "array-move";
 //Custom scrollbar
 import { Scrollbars } from "react-custom-scrollbars-2";
+//Firebase
+import { db } from "./firebaseConfig";
+import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 
 const NoStatsText = function () {
   return (
@@ -40,21 +44,21 @@ const NoStatsText = function () {
   );
 };
 
-function Statistics(props) {
+function Statistics() {
   //Contexts
-  const { tabletResolution, commonWindowSize } = useContext(ResolutionContext);
-  const { user } = useContext(UserDataContext);
+  const { mobileResolution, tabletResolution, commonWindowSize } =
+    useContext(ResolutionContext);
+  const { user, userSettings, updateSettings } = useContext(UserDataContext);
 
-  //Temporary DnD stuff
-  const [windowOrder, setWindowOrder] = useState([
-    "one",
-    "two",
-    "three",
-    "four",
-    "five",
-  ]);
+  //DnD stuff
+  const [windowOrder, setWindowOrder] = useState([]);
   const onSortEnd = ({ oldIndex, newIndex }) => {
     setWindowOrder(arrayMove(windowOrder, oldIndex, newIndex));
+    const newWindowOrder = new Array();
+    arrayMove(windowOrder, oldIndex, newIndex).map((stat, i) =>
+      newWindowOrder.push({ ...stat, order: i })
+    );
+    updateWindowOrder(newWindowOrder);
   };
   const DraggableStatWindowList = SortableContainer(({ children }) => {
     return <Fragment>{children}</Fragment>;
@@ -64,27 +68,121 @@ function Statistics(props) {
   ));
 
   //Select window for editing/deletion
-  const [currentWindow, setCurrentWindow] = useState(null);
-  const selectWindow = (wd) => setCurrentWindow(wd);
+  const [currentWindow, setCurrentWindow] = useState({
+    name: "None",
+    id: "00",
+  });
+  const [editModeOn, setEditModeOn] = useState(false);
   //New Stat Window popup
   const [popupOpen, setPopupOpen] = useState(false);
-  const openPopup = function (editMode = false, wd) {
-    setPopupOpen(true);
+  const openPopup = function (e, editMode = false, id) {
+    console.log("Opening popup...", editMode, id);
     if (editMode) {
-      selectWindow(wd);
+      console.log("edit mode on");
+      setCurrentWindow(userSettings.statistics.find((st) => st.id === id));
+      setEditModeOn(true);
     }
+    setPopupOpen(true);
   };
   const closePopup = function () {
     setPopupOpen(false);
-    setTimeout(() => setCurrentWindow(null), 50);
+    setEditModeOn(false);
+    setTimeout(() => setCurrentWindow({ name: "None", id: "00" }), 50);
   };
   //Delete Stat Window popup
   const [deletePopupOpen, setDeletePopupOpen] = useState(false);
-  const openDeletePopup = function (wd) {
+  const openDeletePopup = function (id) {
+    setCurrentWindow(userSettings.statistics.find((st) => st.id === id));
     setDeletePopupOpen(true);
-    selectWindow(wd);
   };
-  const closeDeletePopup = () => setDeletePopupOpen(false);
+  const closeDeletePopup = function () {
+    setDeletePopupOpen(false);
+    setTimeout(() => setCurrentWindow({ name: "None", id: "00" }), 50);
+  };
+
+  //CRUD functions
+  const updateWindowOrder = async function (statsWithNewPos) {
+    const settingsDocRef = doc(db, user.id, "settings");
+    await updateDoc(settingsDocRef, {
+      statistics: statsWithNewPos,
+    }).then(() => {
+      openNotification("Stat Window order updated!");
+    });
+  };
+  const uploadNewStat = async function (stat) {
+    const settingsDocRef = doc(db, user.id, "settings");
+    await updateDoc(settingsDocRef, {
+      statistics: [...userSettings.statistics, stat],
+    }).then(() => {
+      openNotification(`${stat.name} Stat Window successfully added!`);
+      updateSettings();
+    });
+  };
+  const updateStat = async function (stat) {
+    const updatedStats = userSettings.statistics;
+    updatedStats[userSettings.statistics.findIndex((st) => st.id === stat.id)] =
+      stat;
+    const settingsDocRef = doc(db, user.id, "settings");
+    await updateDoc(settingsDocRef, {
+      statistics: updatedStats,
+    }).then(() => {
+      openNotification(`${stat.name} Stat Window successfully updated!`);
+      updateSettings();
+    });
+  };
+  const deleteStat = async function (stat) {
+    const updatedStats = userSettings.statistics.filter(
+      (st) => st.id !== stat.id
+    );
+    const settingsDocRef = doc(db, user.id, "settings");
+    await updateDoc(settingsDocRef, {
+      statistics: updatedStats,
+    }).then(() => {
+      openNotification(`${stat.name} Stat Window successfully updated!`);
+      updateSettings();
+    });
+  };
+
+  //Notification
+  const [notificationState, setNotificationState] = useState({
+    open: false,
+    text: "",
+  });
+  const openNotification = (text) =>
+    setNotificationState({ open: true, text: text });
+  const handleCloseNotification = function (e, reason) {
+    if (reason === "clickaway") {
+      return;
+    }
+    setNotificationState({ open: false, text: "" });
+  };
+
+  useEffect(() => {
+    const sortedStats = userSettings.statistics.sort(
+      (a, b) => a.order - b.order
+    );
+    if (userSettings.statistics) {
+      setWindowOrder(sortedStats);
+    }
+  }, [userSettings]);
+
+  useEffect(() => {
+    let unsubscribe = null;
+    async function subscribeToSettingsUpdates() {
+      const settingsDocRef = doc(db, user.id, "settings");
+      unsubscribe = await onSnapshot(settingsDocRef, (set) => {
+        console.log("Updating stats...");
+        updateSettings();
+      });
+    }
+    subscribeToSettingsUpdates();
+
+    return () => {
+      if (typeof unsubscribe === "function") {
+        unsubscribe(); //Unsubscribes from onSnapshot updates
+      }
+    };
+  }, []);
 
   return (
     <Scrollbars
@@ -95,6 +193,17 @@ function Statistics(props) {
     >
       {user.userLoggedIn ? (
         <Fragment>
+          <Snackbar
+            open={notificationState.open}
+            autoHideDuration={3000}
+            onClose={handleCloseNotification}
+            message={notificationState.text}
+            anchorOrigin={
+              mobileResolution
+                ? { vertical: "top", horizontal: "center" }
+                : { vertical: "bottom", horizontal: "center" }
+            }
+          />
           <Fab
             color="primary"
             sx={{
@@ -110,23 +219,29 @@ function Statistics(props) {
             <AddIcon />
           </Fab>
           <Box sx={commonWindowSize}>
-            <NewStatPopup
-              open={popupOpen}
-              closeFn={closePopup}
-              selectedWindow={currentWindow}
-            />
+            {popupOpen ? (
+              <NewStatPopup
+                open={popupOpen}
+                closeFn={closePopup}
+                selectedWindow={currentWindow}
+                uploadNewStat={uploadNewStat}
+                editMode={editModeOn}
+                updateStat={updateStat}
+              />
+            ) : null}
             <DbElementDeletePopup
               isOpen={deletePopupOpen}
               close={closeDeletePopup}
-              item={currentWindow}
-              itemType="stat"
+              item={{ item: currentWindow, itemType: "stat" }}
+              deleteStat={deleteStat}
             />
+            {windowOrder.length === 0 ? <NoStatsText /> : null}
             <DraggableStatWindowList onSortEnd={onSortEnd} pressDelay={200}>
               <div>
                 {windowOrder.map((wd, i) => (
                   <DraggableStatWindow
                     key={i}
-                    name={wd}
+                    data={wd}
                     index={i}
                     openEditPopup={openPopup}
                     openDeletePopup={openDeletePopup}

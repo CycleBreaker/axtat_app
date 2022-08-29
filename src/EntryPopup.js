@@ -16,7 +16,7 @@ import { UserDataContext } from "./contexts/UserDataContext";
 import { ThemeContext } from "./contexts/ThemeContext";
 //Helpers
 import { lightTheme, darkTheme } from "./themes";
-import { dateFormatWithTime } from "./config";
+import { dateFormatWithTime, colorSet } from "./config";
 
 //Transition animation
 const ZoomTransition = forwardRef(function SlideTransition(props, ref) {
@@ -30,7 +30,7 @@ const Tag = function (prps) {
     <div
       style={{
         position: "relative",
-        backgroundColor: prps.color,
+        backgroundColor: prps.selectColor(prps.tag),
         display: "inline-block",
         textAlign: "right",
         padding: "5px",
@@ -65,19 +65,41 @@ export default function EntryPopup(props) {
 
   const selectIcon = function () {
     if (userSettings.groups) {
-      const groupIcon = userSettings.groups.find(
-        (gr) => gr.name === entry.group
-      );
-      if (groupIcon) {
-        return groupIcon.icon;
+      if (entry.isSpending) {
+        const groupIcon = userSettings.groups.find(
+          (gr) => gr.name === entry.group
+        );
+        if (groupIcon) {
+          return groupIcon.icon;
+        } else {
+          return entry.icon;
+        }
       } else {
-        return entry.icon;
+        const sourceIcon = userSettings.sources.find(
+          (gr) => gr.name === entry.source
+        );
+        if (sourceIcon) {
+          return sourceIcon.icon;
+        } else {
+          return entry.icon;
+        }
       }
     }
   };
 
-  //Temporary tag colors
-  const tempTagColors = ["#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"];
+  const selectColor = function (tag) {
+    let tagObject = userSettings.tags.find((tg) => tg.name === tag);
+    let colorNumber = 0;
+    if (tagObject) {
+      colorNumber = tagObject.color;
+    } else {
+      colorNumber = Math.floor(Math.random() * colorSet.length);
+    }
+    const color = isLightTheme
+      ? colorSet[colorNumber].light
+      : colorSet[colorNumber].dark;
+    return color;
+  };
 
   return (
     <Dialog open={open} TransitionComponent={ZoomTransition} onClose={closeFn}>
@@ -125,7 +147,7 @@ export default function EntryPopup(props) {
           }}
         >
           {entry.tags.map((tg, i) => (
-            <Tag key={i} tag={tg} color={tempTagColors[i]} />
+            <Tag key={i} tag={tg} selectColor={selectColor} />
           ))}
         </Box>
         <Typography sx={{ m: 1 }}>{entry.comment}</Typography>

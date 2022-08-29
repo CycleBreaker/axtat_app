@@ -107,8 +107,10 @@ export default function DbElementPopup(props) {
   const [error, setError] = useState(false);
 
   const handleSubmit = function () {
+    console.log("handling submit...");
     switch (options.elementType) {
       case "tag":
+        console.log("tag case");
         let foundColorId = 0;
         colorSet.map((clr) => {
           if (
@@ -135,6 +137,7 @@ export default function DbElementPopup(props) {
         }
         break;
       case "group":
+        console.log("group case");
         if (options.editMode) {
           updateDbElement(
             options.elementType,
@@ -147,7 +150,9 @@ export default function DbElementPopup(props) {
             icon: chosenIcon,
           });
         }
+        break;
       case "item":
+        console.log("item case");
         if (options.editMode) {
           updateDbElement(
             options.elementType,
@@ -163,7 +168,9 @@ export default function DbElementPopup(props) {
             parent: chosenGroup,
           });
         }
+        break;
       case "source":
+        console.log("source case");
         if (options.editMode) {
           updateDbElement(
             options.elementType,
@@ -176,6 +183,7 @@ export default function DbElementPopup(props) {
             icon: chosenIcon,
           });
         }
+        break;
     }
     handleClose();
   };
@@ -190,6 +198,7 @@ export default function DbElementPopup(props) {
         }
       }
     });
+    /*
     if (options.elementType === "group") {
       userSettings.groups.map((gr) => {
         if (gr !== chosenGroup) {
@@ -197,6 +206,7 @@ export default function DbElementPopup(props) {
         }
       });
     }
+    */
   });
 
   return (
@@ -266,6 +276,7 @@ export default function DbElementPopup(props) {
                   renderInput={(params) => (
                     <TextField {...params} label="Parent group" />
                   )}
+                  disableClearable
                 />
               ) : null}
               {options.elementType === "group" ||

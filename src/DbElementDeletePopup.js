@@ -13,21 +13,26 @@ const ZoomTransition = forwardRef(function ZoomTransition(props, ref) {
 });
 
 export default function DbElementDeletePopup(props) {
-  const { isOpen, close, item, deleteDbElement } = props;
-  console.log(item);
+  const { isOpen, close, item, deleteDbElement, deleteStat } = props;
   const titleMessage = function () {
     switch (item.itemType) {
       case "entry":
         return "this entry";
       case "stat":
-        return `the ${item.item} Stat Window`;
+        return `the ${item.item.name} Stat Window`;
       default:
         return `the ${item.item} ${item.itemType}`;
     }
   };
 
   const handleDelete = function () {
-    deleteDbElement(item.itemType.toLowerCase(), item.item);
+    if (item.itemType === "entry") {
+      deleteDbElement(item.item);
+    } else if (item.itemType === "stat") {
+      deleteStat(item.item);
+    } else {
+      deleteDbElement(item.itemType.toLowerCase(), item.item);
+    }
     close();
   };
 

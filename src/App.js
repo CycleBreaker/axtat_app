@@ -15,16 +15,16 @@ function App() {
   return (
     <ThemeContextProvider>
       <ResolutionContextProvider>
-        <TransitionContextProvider>
-          <UserDataContextProvider>
+        <UserDataContextProvider>
+          <TransitionContextProvider>
             <CssBaseline />
             <BrowserRouter>
               <Menus>
                 <AnimatedRoutes />
               </Menus>
             </BrowserRouter>
-          </UserDataContextProvider>
-        </TransitionContextProvider>
+          </TransitionContextProvider>
+        </UserDataContextProvider>
       </ResolutionContextProvider>
     </ThemeContextProvider>
   );

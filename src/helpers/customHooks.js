@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export function textInput(initialValue, onlyNumbers = false) {
   const [value, setValue] = useState(initialValue);
@@ -11,4 +11,12 @@ export function textInput(initialValue, onlyNumbers = false) {
   };
   const reset = () => setValue("");
   return [value, handleChange, reset];
+}
+
+export function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
 }

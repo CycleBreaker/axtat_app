@@ -3,6 +3,7 @@ import React, { Fragment, useState, useContext, useEffect, memo } from "react";
 import DbElementPopup from "./DbElementPopup";
 import DbElementDeletePopup from "./DbElementDeletePopup";
 import LoadingElement from "./LoadingElement";
+import Footer from "./Footer";
 //Contexts
 import { ResolutionContext } from "./contexts/ResolutionContext";
 import { ThemeContext } from "./contexts/ThemeContext";
@@ -21,7 +22,6 @@ import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import Button from "@mui/material/Button";
-import Footer from "./Footer";
 import Snackbar from "@mui/material/Snackbar";
 //MUI icons
 import AddBoxIcon from "@mui/icons-material/AddBox";
@@ -258,12 +258,15 @@ function Settings() {
     setChosenCurrency(updSettings.data().currency);
   };
   const uploadNewDbElement = async function (type, elt) {
+    console.log("firing uploadNewDbElement()");
     const settingsDocRef = doc(db, user.id, "settings");
+    console.log(elt);
     await updateDoc(settingsDocRef, {
       [type + "s"]: [...userSettings[type + "s"], elt],
     }).then(() => {
       openNotification(`${elt.name} ${type} successfully added!`);
     });
+    updateSettings();
   };
   const updateDbElement = async function (type, elt, prevName) {
     const settingsDocRef = doc(db, user.id, "settings");
@@ -280,6 +283,7 @@ function Settings() {
         `${type.charAt(0).toUpperCase() + type.slice(1)} successfully updated!`
       );
     });
+    updateSettings();
   };
   const deleteDbElement = async function (type, elt) {
     const settingsDocRef = doc(db, user.id, "settings");
@@ -300,6 +304,7 @@ function Settings() {
       );
       openNotification(`${elt} ${type} successfully deleted!`);
     });
+    updateSettings();
   };
 
   useEffect(() => {
@@ -329,7 +334,7 @@ function Settings() {
         height: "100vh",
       }}
     >
-      {userSettings.currency ? (
+      {user.userLoggedIn ? (
         <Fragment>
           <Snackbar
             open={notificationState.open}
@@ -400,6 +405,7 @@ function Settings() {
                     renderInput={(params) => (
                       <TextField {...params} label="Currency" />
                     )}
+                    disableClearable
                   />
                 </Stack>
               </MyBox>

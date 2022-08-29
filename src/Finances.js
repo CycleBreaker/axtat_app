@@ -11,6 +11,8 @@ import LoadingElement from "./LoadingElement";
 import { ResolutionContext } from "./contexts/ResolutionContext";
 import { ThemeContext } from "./contexts/ThemeContext";
 import { UserDataContext } from "./contexts/UserDataContext";
+//Helpers
+import { dateFormat } from "./config";
 //MUI elements
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
@@ -20,14 +22,22 @@ import Divider from "@mui/material/Divider";
 import Collapse from "@mui/material/Collapse";
 import Footer from "./Footer";
 import Typography from "@mui/material/Typography";
+import Snackbar from "@mui/material/Snackbar";
 //Icons
 import AddIcon from "@mui/icons-material/Add";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-//ChartJS elements
-import { Line } from "react-chartjs-2";
-import { Chart } from "chart.js/auto";
 //Custom scrollbar
 import { Scrollbars } from "react-custom-scrollbars-2";
+//Firebase
+import { db } from "./firebaseConfig";
+import {
+  doc,
+  onSnapshot,
+  collection,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+} from "firebase/firestore";
 
 //Temporary boilerplate stuff
 const tempChartData = [
@@ -189,9 +199,39 @@ const tempTableEntry = [
   },
 ];
 
-//Entry table row component
+//Entry table row components
+const DatePlaceHolder = function (props) {
+  const { isLightTheme, lightTheme, darkTheme } = useContext(ThemeContext);
+  return (
+    <Fragment>
+      <Box sx={{ width: "inherit", p: 2 }}>
+        <Box
+          sx={{
+            p: 1,
+            m: "0 auto",
+            width: "fit-content",
+            backgroundColor: isLightTheme
+              ? lightTheme.palette.primary.main
+              : darkTheme.palette.primary.main,
+            color: isLightTheme
+              ? lightTheme.palette.primary.contrastText
+              : darkTheme.palette.primary.contrastText,
+            borderRadius: 16,
+            filter: "drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.3))",
+          }}
+        >
+          {new Intl.DateTimeFormat("en-IE", dateFormat).format(
+            new Date(props.date)
+          )}
+        </Box>
+      </Box>
+      <Divider />
+    </Fragment>
+  );
+};
+
 const EntryTableRow = function (props) {
-  const { entry, index, openEntryPopup, userSettings } = props;
+  const { entry, index, openEntryPopup, userSettings, entryAmount } = props;
   const { isLightTheme, lightTheme, darkTheme } = useContext(ThemeContext);
 
   const entryClick = function () {
@@ -199,11 +239,24 @@ const EntryTableRow = function (props) {
   };
 
   const selectIcon = function () {
-    const groupIcon = userSettings.groups.find((gr) => gr.name === entry.group);
-    if (groupIcon) {
-      return groupIcon.icon;
+    if (entry.isSpending) {
+      const groupIcon = userSettings.groups.find(
+        (gr) => gr.name === entry.group
+      );
+      if (groupIcon) {
+        return groupIcon.icon;
+      } else {
+        return entry.icon;
+      }
     } else {
-      return entry.icon;
+      const sourceIcon = userSettings.sources.find(
+        (gr) => gr.name === entry.source
+      );
+      if (sourceIcon) {
+        return sourceIcon.icon;
+      } else {
+        return entry.icon;
+      }
     }
   };
 
@@ -274,7 +327,7 @@ const EntryTableRow = function (props) {
               `${userSettings.currency ? userSettings.currency.symbol : null}`}
         </Grid>
       </Grid>
-      {index !== tempTableEntry.length - 1 || (index !== 0 && <Divider />)}
+      {index !== entryAmount - 1 && <Divider />}
     </Box>
   );
 };
@@ -301,13 +354,17 @@ const NoEntryText = function () {
 function Finances(props) {
   const location = useLocation();
   //Contexts
-  const { tabletResolution, commonWindowSize } = useContext(ResolutionContext);
+  const { mobileResolution, tabletResolution, commonWindowSize } =
+    useContext(ResolutionContext);
   const {
     user,
     userEntries,
     sessionSettings,
     setSessionSettings,
     userSettings,
+    updateUserEntries,
+    userCheck,
+    logout,
   } = useContext(UserDataContext);
   //New Entry popup
   const [newEntryPopupOpen, setNewEntryPopupOpen] = useState(false);
@@ -334,8 +391,70 @@ function Finances(props) {
   const openDeletePopup = () => setDeletePopupOpen(true);
   const closeDeletePopup = () => setDeletePopupOpen(false);
 
+  //Notification
+  const [notificationState, setNotificationState] = useState({
+    open: false,
+    text: "",
+  });
+  const openNotification = (text) =>
+    setNotificationState({ open: true, text: text });
+  const handleCloseNotification = function (e, reason) {
+    if (reason === "clickaway") {
+      return;
+    }
+    setNotificationState({ open: false, text: "" });
+  };
+  //CRUD functions
+  const createNewEntry = async function (entry) {
+    console.log("create entry: ", entry);
+    await addDoc(collection(db, user.id), {
+      ...entry,
+      icon: entry.isSpending
+        ? userSettings.groups.find((gr) => entry.group === gr.name).icon
+        : userSettings.sources.find((gr) => entry.source === gr.name).icon,
+      date: new Date(entry.date),
+    });
+    openNotification("Entry added!");
+  };
+  const editEntry = async function (entry) {
+    console.log("edit entry:", entry);
+    const docRef = doc(db, user.id, entry.id);
+    console.log(docRef);
+    await updateDoc(docRef, {
+      ...entry,
+      icon: entry.isSpending
+        ? userSettings.groups.find((gr) => entry.group === gr.name).icon
+        : userSettings.sources.find((gr) => entry.source === gr.name).icon,
+      date: new Date(entry.date),
+    });
+    openNotification("Entry updated!");
+    updateUserEntries();
+  };
+  const deleteEntry = async function (id) {
+    await deleteDoc(doc(db, user.id, id));
+    openNotification("Entry deleted.");
+    closeEntryPopup();
+    updateUserEntries();
+  };
+
+  //Subscribe to entry updates
   useEffect(() => {
     setTimeout(() => setSessionSettings({ appLoaded: true }), 500);
+    let unsubscribe = null;
+    async function subscribeToEntryUpdates() {
+      console.log("subscribed to entry updates");
+      const settingsDocRef = collection(db, user.id);
+      unsubscribe = await onSnapshot(settingsDocRef, (set) => {
+        console.log("New entry snapshot");
+        updateUserEntries();
+      });
+    }
+    subscribeToEntryUpdates();
+    return () => {
+      if (typeof unsubscribe === "function") {
+        unsubscribe(); //Unsubscribes from onSnapshot updates
+      }
+    };
   }, []);
 
   return (
@@ -363,11 +482,26 @@ function Finances(props) {
           >
             <AddIcon />
           </Fab>
+          <Snackbar
+            open={notificationState.open}
+            autoHideDuration={3000}
+            onClose={handleCloseNotification}
+            message={notificationState.text}
+            anchorOrigin={
+              mobileResolution
+                ? { vertical: "top", horizontal: "center" }
+                : { vertical: "bottom", horizontal: "center" }
+            }
+          />
           <Box sx={commonWindowSize}>
             <NewEntryPopup
               open={newEntryPopupOpen}
               closeFn={closeNewEntryPopup}
               editMode={newPopupEntryEditMode}
+              currentEntry={currentEntry}
+              openNotification={openNotification}
+              createNewEntry={createNewEntry}
+              editEntry={editEntry}
             />
             <EntryPopup
               entry={currentEntry}
@@ -379,25 +513,13 @@ function Finances(props) {
             <DbElementDeletePopup
               isOpen={deletePopupOpen}
               close={closeDeletePopup}
-              item={currentEntry.id}
-              itemType="entry"
+              item={{
+                item: currentEntry.id,
+                itemType: "entry",
+              }}
+              deleteDbElement={deleteEntry}
             />
             <Grid container spacing={2}>
-              <Grid item xs={12} sx={{ width: "100%" }}>
-                <Paper
-                  elevation={3}
-                  className={
-                    sessionSettings.appLoaded ? null : "slide-in-bottom"
-                  }
-                >
-                  <Box sx={{ p: 2 }}>
-                    <Box sx={{ textAlign: "right" }}>
-                      9 May 2022 - 9 May 2023
-                    </Box>
-                    <Line data={tempChartDataObject} options={{ scale: 0.5 }} />
-                  </Box>
-                </Paper>
-              </Grid>
               <Grid
                 item
                 xs={12}
@@ -413,12 +535,18 @@ function Finances(props) {
                     <TransitionGroup sx={{ width: "inherit" }}>
                       {userEntries.map((entry, i) => (
                         <Collapse sx={{ width: "inherit" }} key={entry.id}>
-                          <EntryTableRow
-                            index={i}
-                            entry={entry}
-                            openEntryPopup={openEntryPopup}
-                            userSettings={userSettings}
-                          />
+                          {entry.sum === 0 ? (
+                            <DatePlaceHolder key={i} date={entry.date} />
+                          ) : (
+                            <EntryTableRow
+                              key={i}
+                              index={i}
+                              entry={entry}
+                              openEntryPopup={openEntryPopup}
+                              userSettings={userSettings}
+                              entryAmount={userEntries.length}
+                            />
+                          )}
                         </Collapse>
                       ))}
                     </TransitionGroup>

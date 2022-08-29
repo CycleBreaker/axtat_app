@@ -8,6 +8,7 @@ import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 //Contexts
 import { ResolutionContext } from "./contexts/ResolutionContext";
 import { UserDataContext } from "./contexts/UserDataContext";
@@ -23,7 +24,8 @@ export default function Login() {
   //Responsiveness
   const { mobileResolution } = useContext(ResolutionContext);
   //User data storage
-  const { setUser } = useContext(UserDataContext);
+  const { turnOnDemoMode, loginDataToUser, unloadUserData } =
+    useContext(UserDataContext);
 
   //AUTHENTICATIONS
 
@@ -43,7 +45,7 @@ export default function Login() {
           theFirebaseUI.start(".firebase-auth-container", {
             callbacks: {
               signInSuccessWithAuthResult: function (authResult, redirectUrl) {
-                console.log(authResult);
+                loginDataToUser(authResult);
                 //Set session token in sessionStorage
                 sessionStorage.setItem(
                   "AuthToken",
@@ -63,11 +65,20 @@ export default function Login() {
             },
             // Will use popup for IDP Providers sign-in flow instead of the default, redirect.
             signInFlow: mobileResolution ? "redirect" : "popup",
-            signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
+            signInOptions: [
+              firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+              firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+            ],
           });
         }
       });
     }, []);
+  };
+
+  //Demo mode
+  const demoModeLogin = function () {
+    turnOnDemoMode();
+    setTimeout(() => navigate("/finances"), 100);
   };
 
   //Check if the user is already authenticated
@@ -78,6 +89,8 @@ export default function Login() {
     }
   }, []);
   */
+
+  useEffect(() => unloadUserData(), []);
 
   //Grow in timeout={2000} easing={{ enter: "cubic-bezier(.28,.11,.27,1)" }}
   //<Slide direction="up" in mountOnEnter unmountOnExit timeout={1000}>
@@ -121,16 +134,14 @@ export default function Login() {
           </Box>
           <FirebaseSignIn />
           <div className="firebase-auth-container" />
-          <Box
-            sx={{
-              p: 3,
-              display: "inline-block",
-              border: "1px solid black",
-              borderRadius: "25px",
-            }}
+          <Button
+            variant="contained"
+            color="success"
+            sx={{ width: "200px", borderRadius: "2px" }}
+            onClick={demoModeLogin}
           >
             Demo mode
-          </Box>
+          </Button>
         </Paper>
       </Container>
       <Footer />

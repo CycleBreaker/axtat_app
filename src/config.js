@@ -16,7 +16,7 @@ export const navLinkBgColorDark = "rgba(255, 231, 92, 0.3)";
 
 export const colorSet = [
   { id: 1, light: "#E80909", dark: "#C50707" },
-  { id: 2, light: "#FF006E", dark: "#A30047" },
+  { id: 2, light: "#FF0090", dark: "#A3005C" },
   { id: 3, light: "#FB5607", dark: "#DD4803" },
   { id: 4, light: "#FFBE0B", dark: "#B88700" },
   { id: 5, light: "#FFEF3D", dark: "#CCBB00" },
@@ -194,4 +194,22 @@ export const currencies = {
   VND: { name: "Vietnamese Dong", symbol: "₫" },
   YER: { name: "Yemeni Rial", symbol: "﷼" },
   ZMK: { name: "Zambian Kwacha", symbol: "ZK" },
+};
+
+export const demoUserData = {
+  entries: [],
+  settings: {
+    currency: { name: "Ukrainian Hryvnia", symbol: "₴" },
+    tags: [
+      { color: 1, name: "Girlfriend" },
+      { color: 3, name: "Parties" },
+      { color: 5, name: "Travel" },
+      { color: 7, name: "Investments" },
+      { color: 9, name: "Hobbies" },
+    ],
+    groups: [{ name: "Food", icon: "🍗" }],
+    items: [{ name: "Home-Cooked", parent: "Food" }],
+    sources: [{ name: "Salary" }],
+    statistics: [],
+  },
 };

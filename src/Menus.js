@@ -42,7 +42,7 @@ function Menus(props) {
   //Contexts
   const { isLightTheme, switchTheme } = useContext(ThemeContext);
   const { pageDirection } = useContext(TransitionContext);
-  const { logout } = useContext(UserDataContext);
+  const { logout, user } = useContext(UserDataContext);
 
   //Check to hide menus on Login screen
   const isLoginScreen = useMatch("/");
@@ -88,8 +88,9 @@ function Menus(props) {
 
   //Security check
   useEffect(() => {
-    firebase.auth().onAuthStateChanged(function (user) {
-      if (!user && location.pathname !== "/") {
+    firebase.auth().onAuthStateChanged(function (usr) {
+      console.log("authStateChanged: ", usr);
+      if (!usr && location.pathname !== "/" && !user.demoMode) {
         navigate("/");
       }
     });
