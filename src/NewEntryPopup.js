@@ -66,6 +66,8 @@ const SpendingInput = function (prps) {
     groupChanged();
   };
 
+  console.log("itemListOfGroup: ", itemListOfGroup);
+
   return (
     <div style={formSpacing}>
       <Autocomplete
@@ -194,7 +196,7 @@ export default function NewEntryPopup(props) {
       sum: 100,
       tags: [userSettings.tags[0].name],
       group: userSettings?.groups[0].name,
-      item: userSettings?.items[0].name,
+      item: userSettings.items[0].name,
       source: userSettings?.sources[0].name,
       comment: "",
     });
@@ -261,7 +263,9 @@ export default function NewEntryPopup(props) {
     //Update fitered groups and items
     setFilteredGroups(userSettings.groups.filter(filterGroups));
     setItemListOfGroup(
-      userSettings.items.filter((itm) => itm.parent === formInput.group)
+      editMode
+        ? [userSettings.items.find((it) => it.parent === currentEntry.group)]
+        : userSettings.items.filter((itm) => itm.parent === formInput.group)
     );
     //Set edited variables
     if (currentEntry.isSpending) {
@@ -276,6 +280,8 @@ export default function NewEntryPopup(props) {
         date: new Date(currentEntry.date),
         sum: currentEntry.sum,
         comment: currentEntry.comment,
+        group: currentEntry.group,
+        item: currentEntry.item,
       });
     } else {
       setFormInput({
@@ -313,27 +319,54 @@ export default function NewEntryPopup(props) {
         console.log("all good - spending");
         if (editMode) {
           console.log("edit mode");
-          editEntry(formInput);
+          editEntry({
+            ...formInput,
+            isSpending: true,
+            source: "",
+          });
         } else {
           console.log("not edit mode");
-          createNewEntry(formInput);
+          createNewEntry({
+            ...formInput,
+            isSpending: true,
+            source: "",
+          });
         }
         closeFn();
       } else {
         openNotification("Something went wrong. Please try again.");
+        console.log(
+          formInput.date,
+          formInput.sum,
+          formInput.group,
+          itemBelongsToGroup
+        );
         closeFn();
       }
     } else {
       if (formInput.date && formInput.sum && formInput.source) {
         console.log("all good - income");
         if (editMode) {
-          editEntry(formInput);
+          editEntry({
+            ...formInput,
+            isSpending: false,
+            tags: [],
+            group: "",
+            item: "",
+          });
         } else {
-          createNewEntry(formInput);
+          createNewEntry({
+            ...formInput,
+            isSpending: false,
+            tags: [],
+            group: "",
+            item: "",
+          });
         }
         closeFn();
       } else {
         openNotification("Something went wrong. Please try again.");
+        console.log(formInput.date, formInput.sum, formInput.source);
         closeFn();
       }
     }

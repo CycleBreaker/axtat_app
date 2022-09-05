@@ -48,7 +48,8 @@ function Statistics() {
   //Contexts
   const { mobileResolution, tabletResolution, commonWindowSize } =
     useContext(ResolutionContext);
-  const { user, userSettings, updateSettings } = useContext(UserDataContext);
+  const { user, userSettings, setUserSettings, updateSettings } =
+    useContext(UserDataContext);
 
   //DnD stuff
   const [windowOrder, setWindowOrder] = useState([]);
@@ -58,7 +59,9 @@ function Statistics() {
     arrayMove(windowOrder, oldIndex, newIndex).map((stat, i) =>
       newWindowOrder.push({ ...stat, order: i })
     );
-    updateWindowOrder(newWindowOrder);
+    if (!user.demoMode) {
+      updateWindowOrder(newWindowOrder);
+    }
   };
   const DraggableStatWindowList = SortableContainer(({ children }) => {
     return <Fragment>{children}</Fragment>;
@@ -110,37 +113,66 @@ function Statistics() {
     });
   };
   const uploadNewStat = async function (stat) {
-    const settingsDocRef = doc(db, user.id, "settings");
-    await updateDoc(settingsDocRef, {
-      statistics: [...userSettings.statistics, stat],
-    }).then(() => {
-      openNotification(`${stat.name} Stat Window successfully added!`);
-      updateSettings();
-    });
+    console.log("stat", stat);
+    if (user.demoMode) {
+      const userSettingsCopy = userSettings;
+      userSettingsCopy.statistics.unshift({
+        ...stat,
+        dateRange: [
+          { seconds: Math.floor(stat.dateRange[0].getTime()) / 1000 },
+          { seconds: Math.floor(stat.dateRange[1].getTime()) / 1000 },
+        ],
+      });
+      console.log("userSettingsCopy", userSettingsCopy);
+      setUserSettings(userSettingsCopy);
+      console.log("stat: ", stat);
+    } else {
+      const settingsDocRef = doc(db, user.id, "settings");
+      await updateDoc(settingsDocRef, {
+        statistics: [...userSettings.statistics, stat],
+      }).then(() => {
+        openNotification(`${stat.name} Stat Window successfully added!`);
+        updateSettings();
+      });
+    }
   };
   const updateStat = async function (stat) {
     const updatedStats = userSettings.statistics;
     updatedStats[userSettings.statistics.findIndex((st) => st.id === stat.id)] =
-      stat;
-    const settingsDocRef = doc(db, user.id, "settings");
-    await updateDoc(settingsDocRef, {
-      statistics: updatedStats,
-    }).then(() => {
-      openNotification(`${stat.name} Stat Window successfully updated!`);
-      updateSettings();
-    });
+      {
+        ...stat,
+        dateRange: [
+          { seconds: Math.floor(stat.dateRange[0].getTime()) / 1000 },
+          { seconds: Math.floor(stat.dateRange[1].getTime()) / 1000 },
+        ],
+      };
+    if (user.demoMode) {
+      setUserSettings({ ...userSettings, statistics: updatedStats });
+    } else {
+      const settingsDocRef = doc(db, user.id, "settings");
+      await updateDoc(settingsDocRef, {
+        statistics: updatedStats,
+      }).then(() => {
+        openNotification(`${stat.name} Stat Window successfully updated!`);
+        updateSettings();
+      });
+    }
   };
   const deleteStat = async function (stat) {
     const updatedStats = userSettings.statistics.filter(
       (st) => st.id !== stat.id
     );
-    const settingsDocRef = doc(db, user.id, "settings");
-    await updateDoc(settingsDocRef, {
-      statistics: updatedStats,
-    }).then(() => {
-      openNotification(`${stat.name} Stat Window successfully updated!`);
-      updateSettings();
-    });
+    if (user.demoMode) {
+      setUserSettings({ ...userSettings, statistics: updatedStats });
+    } else {
+      const settingsDocRef = doc(db, user.id, "settings");
+      await updateDoc(settingsDocRef, {
+        statistics: updatedStats,
+      }).then(() => {
+        openNotification(`${stat.name} Stat Window successfully updated!`);
+        updateSettings();
+      });
+    }
   };
 
   //Notification

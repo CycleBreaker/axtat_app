@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, memo } from "react";
 //Contexts
 import { ThemeContext } from "./contexts/ThemeContext";
 import { UserDataContext } from "./contexts/UserDataContext";
@@ -30,7 +30,7 @@ const ChartComponent = function (props) {
   }
 };
 
-export default function StatWindow(props) {
+function StatWindow(props) {
   const { openEditPopup, openDeletePopup, data } = props;
   const { isLightTheme, lightTheme, darkTheme } = useContext(ThemeContext);
   const { userEntries } = useContext(UserDataContext);
@@ -40,6 +40,7 @@ export default function StatWindow(props) {
   const deleteWindow = () => openDeletePopup(data.id);
 
   //Filter entries by date only to shorten further processes
+  console.log(data.name, data);
   const dateFilteredEntries = userEntries.filter(
     (ent) =>
       ent.date >= data.dateRange[0].seconds * 1000 &&
@@ -84,9 +85,28 @@ export default function StatWindow(props) {
   //Create a data object for the chart
   const generateDataObject = function () {
     let dataObject = null;
+    console.log("data.dateRange: ", data.dateRange);
     switch (data.chartType) {
       case "Bar":
       case "Line":
+        const labelsArray = new Array();
+        let loopingDate = new Date(data.dateRange[0].seconds * 1000);
+        const endDate = new Date(
+          (data.dateRange[1].seconds + 24 * 60 * 60) * 1000
+        );
+        while (
+          new Intl.DateTimeFormat("en-IE", dateFormat).format(
+            new Date(loopingDate)
+          ) !==
+          new Intl.DateTimeFormat("en-IE", dateFormat).format(new Date(endDate))
+        ) {
+          labelsArray.push(
+            new Intl.DateTimeFormat("en-IE", dateFormat).format(
+              new Date(loopingDate)
+            )
+          );
+          loopingDate.setDate(loopingDate.getDate() + 1);
+        }
         dataObject = {
           //labels: data.map((dt) => new Intl.DateTimeFormat("en-IE", dateFormat).format(new Date(dt.date))),
           //Create string date format for comparison
@@ -94,46 +114,30 @@ export default function StatWindow(props) {
           //datasets:
           //1. map through array of arrays of entries and create the following object for each:
           //{label: 'name of the BD element filtered', data: 'array of money sums summed by date'}
-          labels: Array.from(
-            new Set(
-              Object.values(eligibleEntries)
-                .flat()
-                .sort((a, b) => a.date - b.date)
-                .map((ent) =>
-                  new Intl.DateTimeFormat("en-IE", dateFormat).format(
-                    new Date(ent.date)
-                  )
-                )
-            )
-          ),
+          labels: labelsArray,
           datasets: Object.keys(eligibleEntries).map(function (key, i) {
             return {
               label: key,
-              data: Object.values(
-                eligibleEntries[key]
-                  .map(function (ent) {
-                    return {
-                      sum: ent.sum,
-                      date: new Intl.DateTimeFormat("en-IE", dateFormat).format(
-                        new Date(ent.date)
-                      ),
-                    };
+              data:
+                //map through labelsArray
+                //sameDate = false
+                //map through eligibleEntries
+                //
+                labelsArray
+                  .map((date) => {
+                    let daySum = 0;
+                    eligibleEntries[key].map((ent) => {
+                      if (
+                        new Intl.DateTimeFormat("en-IE", dateFormat).format(
+                          new Date(ent.date)
+                        ) === date
+                      ) {
+                        daySum += ent.sum;
+                      }
+                    });
+                    return daySum;
                   })
-                  .reduce((sent, { sum, date }) => {
-                    if (!sent[date]) {
-                      sent[date] = {
-                        date,
-                        sum,
-                      };
-                    } else {
-                      sent[date].sum += sum;
-                    }
-
-                    return sent;
-                  }, Object.create(null))
-              )
-                .reverse()
-                .map((fin) => fin.sum),
+                  .reverse(),
               backgroundColor: isLightTheme
                 ? colorSet[i >= colorSet.length ? colorSet.length - i : i].light
                 : colorSet[i >= colorSet.length ? colorSet.length - i : i].dark,
@@ -201,7 +205,6 @@ export default function StatWindow(props) {
   };
 
   Chart.register(...registerables);
-  console.log("Data Object: ", generateDataObject());
 
   return (
     <Paper
@@ -317,3 +320,5 @@ export default function StatWindow(props) {
     </Paper>
   );
 }
+
+export default memo(StatWindow);

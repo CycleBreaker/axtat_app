@@ -189,7 +189,7 @@ function Settings() {
   //Contexts
   const { mobileResolution, commonWindowSize } = useContext(ResolutionContext);
   const { isLightTheme, switchTheme } = useContext(ThemeContext);
-  const { logout, user, userSettings, updateSettings } =
+  const { logout, user, userSettings, setUserSettings, updateSettings } =
     useContext(UserDataContext);
   //Selected elements state
   const [selectedCurrency, setSelectedCurrency] = useState(
@@ -204,11 +204,15 @@ function Settings() {
   const handleCurrencySelect = async function (e, v) {
     console.log("userSettings: ", userSettings.currency, "value: ", v);
     setSelectedCurrency(v);
-    const settingsDocRef = doc(db, user.id, "settings");
-    await updateDoc(settingsDocRef, { currency: v }).then(() => {
-      openNotification("Preferred currency updated");
-      console.log(userSettings.currency);
-    });
+    if (user.demoMode) {
+      setUserSettings({ ...userSettings, currency: v });
+    } else {
+      const settingsDocRef = doc(db, user.id, "settings");
+      await updateDoc(settingsDocRef, { currency: v }).then(() => {
+        console.log(userSettings.currency);
+      });
+    }
+    openNotification("Preferred currency updated");
   };
   //Notification
   const [notificationState, setNotificationState] = useState({
@@ -258,53 +262,89 @@ function Settings() {
     setChosenCurrency(updSettings.data().currency);
   };
   const uploadNewDbElement = async function (type, elt) {
-    console.log("firing uploadNewDbElement()");
-    const settingsDocRef = doc(db, user.id, "settings");
-    console.log(elt);
-    await updateDoc(settingsDocRef, {
-      [type + "s"]: [...userSettings[type + "s"], elt],
-    }).then(() => {
+    if (user.demoMode) {
+      console.log("Adding element in Demo mode...");
+      const newUserSettings = userSettings;
+      newUserSettings[type + "s"].push(elt);
+      console.log(newUserSettings);
+      setUserSettings(newUserSettings);
       openNotification(`${elt.name} ${type} successfully added!`);
-    });
-    updateSettings();
+    } else {
+      console.log("firing uploadNewDbElement()");
+      const settingsDocRef = doc(db, user.id, "settings");
+      console.log(elt);
+      await updateDoc(settingsDocRef, {
+        [type + "s"]: [...userSettings[type + "s"], elt],
+      }).then(() => {
+        openNotification(`${elt.name} ${type} successfully added!`);
+      });
+      updateSettings();
+    }
   };
   const updateDbElement = async function (type, elt, prevName) {
-    const settingsDocRef = doc(db, user.id, "settings");
-    const elementIndex = userSettings[type + "s"].findIndex(
-      (fd) => fd.name === prevName
-    );
-    const newElementArray = userSettings[type + "s"];
-    newElementArray[elementIndex] = elt;
-    await updateDoc(settingsDocRef, {
-      [type + "s"]: newElementArray,
-    }).then(() => {
+    if (user.demoMode) {
+      const newUserSettings = userSettings;
+      const elementIndex = userSettings[type + "s"].findIndex(
+        (fd) => fd.name === prevName
+      );
+      const newElementArray = userSettings[type + "s"];
+      newElementArray[elementIndex] = elt;
+      newUserSettings[type + "s"] = newElementArray;
+      setUserSettings(newUserSettings);
       setSelectedElements({ ...selectedElements, [type]: elt.name });
       openNotification(
         `${type.charAt(0).toUpperCase() + type.slice(1)} successfully updated!`
       );
-    });
-    updateSettings();
+    } else {
+      const settingsDocRef = doc(db, user.id, "settings");
+      const elementIndex = userSettings[type + "s"].findIndex(
+        (fd) => fd.name === prevName
+      );
+      const newElementArray = userSettings[type + "s"];
+      newElementArray[elementIndex] = elt;
+      await updateDoc(settingsDocRef, {
+        [type + "s"]: newElementArray,
+      }).then(() => {
+        setSelectedElements({ ...selectedElements, [type]: elt.name });
+        openNotification(
+          `${
+            type.charAt(0).toUpperCase() + type.slice(1)
+          } successfully updated!`
+        );
+      });
+      updateSettings();
+    }
   };
   const deleteDbElement = async function (type, elt) {
-    const settingsDocRef = doc(db, user.id, "settings");
     const filteredList = userSettings[type + "s"].filter(
       (el) => el.name !== elt
     );
-    await updateDoc(settingsDocRef, { [type + "s"]: filteredList }).then(() => {
+    if (user.demoMode) {
+      setUserSettings({ ...userSettings, [type + "s"]: filteredList });
       setSelectedElements({
         ...selectedElements,
-        [type]: userSettings[type + "s"][0].name,
+        [type]: filteredList[0].name,
       });
-      console.log(
-        "selectedElements",
-        selectedElements,
-        "selectedElements[type]",
-        selectedElements[type],
-        userSettings[type + "s"][0].name
+    } else {
+      const settingsDocRef = doc(db, user.id, "settings");
+      await updateDoc(settingsDocRef, { [type + "s"]: filteredList }).then(
+        () => {
+          setSelectedElements({
+            ...selectedElements,
+            [type]: filteredList[0].name,
+          });
+          console.log(
+            "selectedElements",
+            selectedElements,
+            "selectedElements[type]",
+            selectedElements[type],
+            userSettings[type + "s"][0].name
+          );
+        }
       );
-      openNotification(`${elt} ${type} successfully deleted!`);
-    });
-    updateSettings();
+      updateSettings();
+    }
+    openNotification(`${elt} ${type} successfully deleted!`);
   };
 
   useEffect(() => {

@@ -130,6 +130,7 @@ export default function DbElementPopup(props) {
             options.elementName
           );
         } else {
+          console.log("firing upload in popup...");
           uploadNewDbElement(options.elementType, {
             name: inputValue,
             color: foundColorId,

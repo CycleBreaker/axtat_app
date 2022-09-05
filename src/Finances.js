@@ -13,6 +13,7 @@ import { ThemeContext } from "./contexts/ThemeContext";
 import { UserDataContext } from "./contexts/UserDataContext";
 //Helpers
 import { dateFormat } from "./config";
+import { v4 as uuid } from "uuid";
 //MUI elements
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
@@ -39,43 +40,6 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 
-//Temporary boilerplate stuff
-const tempChartData = [
-  { id: 1, year: 1989, thing: 100 },
-  { id: 2, year: 1992, thing: 43 },
-  { id: 3, year: 1996, thing: 31 },
-  { id: 4, year: 2000, thing: 51 },
-  { id: 5, year: 2004, thing: 70 },
-  { id: 6, year: 2007, thing: 100 },
-  { id: 7, year: 2013, thing: 65 },
-  { id: 8, year: 2018, thing: 73 },
-  { id: 9, year: 2020, thing: 82 },
-  { id: 10, year: 2022, thing: 26 },
-  { id: 11, year: 2007, thing: 100 },
-  { id: 12, year: 2013, thing: 65 },
-  { id: 13, year: 2018, thing: 73 },
-  { id: 14, year: 2020, thing: 82 },
-  { id: 15, year: 2022, thing: 26 },
-];
-const tempChartData2 = [
-  { id: 16, year: 1989, thing: 1003 },
-  { id: 17, year: 1992, thing: 433 },
-  { id: 18, year: 1996, thing: 331 },
-  { id: 19, year: 2000, thing: 531 },
-  { id: 20, year: 2004, thing: 730 },
-  { id: 21, year: 2007, thing: 1300 },
-  { id: 22, year: 2013, thing: 635 },
-  { id: 23, year: 2018, thing: 373 },
-  { id: 24, year: 2020, thing: 832 },
-  { id: 25, year: 2022, thing: 236 },
-];
-const tempChartDataObject = {
-  labels: tempChartData.map((y) => y.year),
-  datasets: [
-    { label: "Somethings", data: tempChartData.map((d) => d.thing) },
-    { label: "Somethingzzzzz", data: tempChartData2.map((d) => d.thing) },
-  ],
-};
 const tempTableEntry = [
   {
     isSpending: true,
@@ -363,8 +327,8 @@ function Finances(props) {
     setSessionSettings,
     userSettings,
     updateUserEntries,
-    userCheck,
-    logout,
+    setUserEntries,
+    setUserSettings,
   } = useContext(UserDataContext);
   //New Entry popup
   const [newEntryPopupOpen, setNewEntryPopupOpen] = useState(false);
@@ -384,6 +348,7 @@ function Finances(props) {
   const openEntryPopup = function (entry) {
     setCurrentEntry(entry);
     setEntryPopupOpen(true);
+    console.log(entry);
   };
   const closeEntryPopup = () => setEntryPopupOpen(false);
   //Delete entry popup controls
@@ -406,35 +371,88 @@ function Finances(props) {
   };
   //CRUD functions
   const createNewEntry = async function (entry) {
-    console.log("create entry: ", entry);
-    await addDoc(collection(db, user.id), {
-      ...entry,
-      icon: entry.isSpending
-        ? userSettings.groups.find((gr) => entry.group === gr.name).icon
-        : userSettings.sources.find((gr) => entry.source === gr.name).icon,
-      date: new Date(entry.date),
-    });
+    if (user.demoMode) {
+      const newDemoEntries = new Array();
+      const demoEntries = [
+        ...userEntries,
+        {
+          ...entry,
+          icon: entry.isSpending
+            ? userSettings.groups.find((gr) => entry.group === gr.name).icon
+            : userSettings.sources.find((gr) => entry.source === gr.name).icon,
+          date: new Date(entry.date),
+          id: uuid(),
+        },
+      ]
+        .sort((a, b) => b.date - a.date)
+        .filter((ent) => ent.sum !== 0);
+      let prevEntryDate = null;
+      demoEntries.map((ent, i) => {
+        const curEntryDate = new Date(ent.date);
+        if (i === 0) {
+          newDemoEntries.push({
+            sum: 0,
+            date: ent.date,
+          });
+        } else if (prevEntryDate) {
+          if (
+            `${prevEntryDate.getDate()} ${prevEntryDate.getMonth()} ${prevEntryDate.getFullYear()}` !==
+            `${curEntryDate.getDate()} ${curEntryDate.getMonth()} ${curEntryDate.getFullYear()}`
+          ) {
+            newDemoEntries.push({
+              sum: 0,
+              date: ent.date,
+            });
+          }
+        }
+        newDemoEntries.push(ent);
+        prevEntryDate = new Date(ent.date);
+      });
+      setUserEntries(newDemoEntries);
+    } else {
+      await addDoc(collection(db, user.id), {
+        ...entry,
+        icon: entry.isSpending
+          ? userSettings.groups.find((gr) => entry.group === gr.name).icon
+          : userSettings.sources.find((gr) => entry.source === gr.name).icon,
+        date: new Date(entry.date),
+      });
+    }
     openNotification("Entry added!");
   };
   const editEntry = async function (entry) {
-    console.log("edit entry:", entry);
-    const docRef = doc(db, user.id, entry.id);
-    console.log(docRef);
-    await updateDoc(docRef, {
-      ...entry,
-      icon: entry.isSpending
-        ? userSettings.groups.find((gr) => entry.group === gr.name).icon
-        : userSettings.sources.find((gr) => entry.source === gr.name).icon,
-      date: new Date(entry.date),
-    });
+    if (user.demoMode) {
+      const entryIndex = userEntries.findIndex((ent) => ent.id === entry.id);
+      const newEntryArray = userEntries;
+      newEntryArray[entryIndex] = entry;
+      setUserEntries(newEntryArray);
+    } else {
+      const docRef = doc(db, user.id, entry.id);
+      console.log(docRef);
+      await updateDoc(docRef, {
+        ...entry,
+        icon: entry.isSpending
+          ? userSettings.groups.find((gr) => entry.group === gr.name).icon
+          : userSettings.sources.find((gr) => entry.source === gr.name).icon,
+        date: new Date(entry.date),
+      });
+      updateUserEntries();
+    }
+    closeEntryPopup();
     openNotification("Entry updated!");
-    updateUserEntries();
   };
   const deleteEntry = async function (id) {
-    await deleteDoc(doc(db, user.id, id));
+    if (user.demoMode) {
+      const entryIndex = userEntries.findIndex((ent) => ent.id === id);
+      const newEntryArray = userEntries;
+      newEntryArray.splice(entryIndex, 1);
+      setUserEntries(newEntryArray);
+    } else {
+      await deleteDoc(doc(db, user.id, id));
+      updateUserEntries();
+    }
     openNotification("Entry deleted.");
     closeEntryPopup();
-    updateUserEntries();
   };
 
   //Subscribe to entry updates
