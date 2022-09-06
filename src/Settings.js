@@ -38,7 +38,6 @@ import { Scrollbars } from "react-custom-scrollbars-2";
 //Firebase
 import { db } from "./firebaseConfig";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
-import AutoGraphIcon from "@mui/icons-material/AutoGraph";
 
 //Menu components
 const MyDivider = () => <Divider variant="middle" sx={{ mb: 4 }} />;
@@ -494,15 +493,6 @@ function Settings() {
               </MyBox>
             </Paper>
           </Box>
-          <div
-            style={{
-              backgroundColor: "green",
-              width: "512px",
-              height: "512px",
-            }}
-          >
-            <AutoGraphIcon sx={{ width: "512px", height: "512px" }} />
-          </div>
           <Footer />
         </Fragment>
       ) : (
