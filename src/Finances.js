@@ -348,7 +348,6 @@ function Finances(props) {
   const openEntryPopup = function (entry) {
     setCurrentEntry(entry);
     setEntryPopupOpen(true);
-    console.log(entry);
   };
   const closeEntryPopup = () => setEntryPopupOpen(false);
   //Delete entry popup controls
@@ -428,7 +427,6 @@ function Finances(props) {
       setUserEntries(newEntryArray);
     } else {
       const docRef = doc(db, user.id, entry.id);
-      console.log(docRef);
       await updateDoc(docRef, {
         ...entry,
         icon: entry.isSpending
@@ -460,10 +458,8 @@ function Finances(props) {
     setTimeout(() => setSessionSettings({ appLoaded: true }), 500);
     let unsubscribe = null;
     async function subscribeToEntryUpdates() {
-      console.log("subscribed to entry updates");
       const settingsDocRef = collection(db, user.id);
       unsubscribe = await onSnapshot(settingsDocRef, (set) => {
-        console.log("New entry snapshot");
         updateUserEntries();
       });
     }

@@ -38,6 +38,7 @@ import { Scrollbars } from "react-custom-scrollbars-2";
 //Firebase
 import { db } from "./firebaseConfig";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
+import AutoGraphIcon from "@mui/icons-material/AutoGraph";
 
 //Menu components
 const MyDivider = () => <Divider variant="middle" sx={{ mb: 4 }} />;
@@ -202,17 +203,16 @@ function Settings() {
     source: userSettings.sources[0].name,
   });
   const handleCurrencySelect = async function (e, v) {
-    console.log("userSettings: ", userSettings.currency, "value: ", v);
     setSelectedCurrency(v);
     if (user.demoMode) {
       setUserSettings({ ...userSettings, currency: v });
+      openNotification("Preferred currency updated");
     } else {
       const settingsDocRef = doc(db, user.id, "settings");
       await updateDoc(settingsDocRef, { currency: v }).then(() => {
-        console.log(userSettings.currency);
+        openNotification("Preferred currency updated");
       });
     }
-    openNotification("Preferred currency updated");
   };
   //Notification
   const [notificationState, setNotificationState] = useState({
@@ -263,16 +263,12 @@ function Settings() {
   };
   const uploadNewDbElement = async function (type, elt) {
     if (user.demoMode) {
-      console.log("Adding element in Demo mode...");
       const newUserSettings = userSettings;
       newUserSettings[type + "s"].push(elt);
-      console.log(newUserSettings);
       setUserSettings(newUserSettings);
       openNotification(`${elt.name} ${type} successfully added!`);
     } else {
-      console.log("firing uploadNewDbElement()");
       const settingsDocRef = doc(db, user.id, "settings");
-      console.log(elt);
       await updateDoc(settingsDocRef, {
         [type + "s"]: [...userSettings[type + "s"], elt],
       }).then(() => {
@@ -333,13 +329,6 @@ function Settings() {
             ...selectedElements,
             [type]: filteredList[0].name,
           });
-          console.log(
-            "selectedElements",
-            selectedElements,
-            "selectedElements[type]",
-            selectedElements[type],
-            userSettings[type + "s"][0].name
-          );
         }
       );
       updateSettings();
@@ -353,7 +342,6 @@ function Settings() {
     async function subscribeToSettingsUpdates() {
       const settingsDocRef = doc(db, user.id, "settings");
       unsubscribe = await onSnapshot(settingsDocRef, (set) => {
-        console.log("update");
         updateSettings();
         setSelectedCurrency(userSettings.currency);
       });
@@ -506,6 +494,15 @@ function Settings() {
               </MyBox>
             </Paper>
           </Box>
+          <div
+            style={{
+              backgroundColor: "green",
+              width: "512px",
+              height: "512px",
+            }}
+          >
+            <AutoGraphIcon sx={{ width: "512px", height: "512px" }} />
+          </div>
           <Footer />
         </Fragment>
       ) : (

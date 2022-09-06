@@ -66,8 +66,6 @@ const SpendingInput = function (prps) {
     groupChanged();
   };
 
-  console.log("itemListOfGroup: ", itemListOfGroup);
-
   return (
     <div style={formSpacing}>
       <Autocomplete
@@ -253,7 +251,6 @@ export default function NewEntryPopup(props) {
   useEffect(() => {
     if (prevGroup !== formInput.group) {
       inputItem(null, itemListOfGroup[0].name);
-      console.log("its different!");
     }
     groupChanged();
   }, [formInput]);
@@ -297,11 +294,8 @@ export default function NewEntryPopup(props) {
     }
   }, [open]);
 
-  useEffect(() => console.log("spendingMode: ", spendingMode));
-
   //Validation and submission
   const handleSubmit = function () {
-    console.log("formInput", formInput);
     if (spendingMode) {
       let itemBelongsToGroup = false;
       const theItem = userSettings.items.find(
@@ -316,16 +310,13 @@ export default function NewEntryPopup(props) {
         formInput.group &&
         itemBelongsToGroup
       ) {
-        console.log("all good - spending");
         if (editMode) {
-          console.log("edit mode");
           editEntry({
             ...formInput,
             isSpending: true,
             source: "",
           });
         } else {
-          console.log("not edit mode");
           createNewEntry({
             ...formInput,
             isSpending: true,
@@ -335,17 +326,10 @@ export default function NewEntryPopup(props) {
         closeFn();
       } else {
         openNotification("Something went wrong. Please try again.");
-        console.log(
-          formInput.date,
-          formInput.sum,
-          formInput.group,
-          itemBelongsToGroup
-        );
         closeFn();
       }
     } else {
       if (formInput.date && formInput.sum && formInput.source) {
-        console.log("all good - income");
         if (editMode) {
           editEntry({
             ...formInput,
@@ -366,7 +350,6 @@ export default function NewEntryPopup(props) {
         closeFn();
       } else {
         openNotification("Something went wrong. Please try again.");
-        console.log(formInput.date, formInput.sum, formInput.source);
         closeFn();
       }
     }

@@ -89,7 +89,6 @@ function Menus(props) {
   //Security check
   useEffect(() => {
     firebase.auth().onAuthStateChanged(function (usr) {
-      console.log("authStateChanged: ", usr);
       if (!usr && location.pathname !== "/" && !user.demoMode) {
         navigate("/");
       }

@@ -348,7 +348,6 @@ export default function NewStatPopup(props) {
       name: nameInput,
       order: editMode ? selectedWindow.order : userSettings.statistics.length,
     };
-    console.log(formInput.dateRange);
     if (editMode) {
       updateStat(submitData);
     } else {
@@ -371,8 +370,6 @@ export default function NewStatPopup(props) {
       sources: [],
     });
   };
-
-  useEffect(() => console.log("selectedWindow", selectedWindow));
 
   return (
     <Fragment>

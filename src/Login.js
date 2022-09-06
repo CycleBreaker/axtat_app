@@ -64,7 +64,7 @@ export default function Login() {
               },
             },
             // Will use popup for IDP Providers sign-in flow instead of the default, redirect.
-            signInFlow: mobileResolution ? "redirect" : "popup",
+            signInFlow: "popup",
             signInOptions: [
               firebase.auth.GoogleAuthProvider.PROVIDER_ID,
               firebase.auth.FacebookAuthProvider.PROVIDER_ID,

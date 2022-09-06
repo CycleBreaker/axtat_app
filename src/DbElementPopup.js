@@ -107,10 +107,8 @@ export default function DbElementPopup(props) {
   const [error, setError] = useState(false);
 
   const handleSubmit = function () {
-    console.log("handling submit...");
     switch (options.elementType) {
       case "tag":
-        console.log("tag case");
         let foundColorId = 0;
         colorSet.map((clr) => {
           if (
@@ -130,7 +128,6 @@ export default function DbElementPopup(props) {
             options.elementName
           );
         } else {
-          console.log("firing upload in popup...");
           uploadNewDbElement(options.elementType, {
             name: inputValue,
             color: foundColorId,
@@ -138,7 +135,6 @@ export default function DbElementPopup(props) {
         }
         break;
       case "group":
-        console.log("group case");
         if (options.editMode) {
           updateDbElement(
             options.elementType,
@@ -153,7 +149,6 @@ export default function DbElementPopup(props) {
         }
         break;
       case "item":
-        console.log("item case");
         if (options.editMode) {
           updateDbElement(
             options.elementType,
@@ -171,7 +166,6 @@ export default function DbElementPopup(props) {
         }
         break;
       case "source":
-        console.log("source case");
         if (options.editMode) {
           updateDbElement(
             options.elementType,

@@ -40,7 +40,6 @@ function StatWindow(props) {
   const deleteWindow = () => openDeletePopup(data.id);
 
   //Filter entries by date only to shorten further processes
-  console.log(data.name, data);
   const dateFilteredEntries = userEntries.filter(
     (ent) =>
       ent.date >= data.dateRange[0].seconds * 1000 &&
@@ -85,7 +84,6 @@ function StatWindow(props) {
   //Create a data object for the chart
   const generateDataObject = function () {
     let dataObject = null;
-    console.log("data.dateRange: ", data.dateRange);
     switch (data.chartType) {
       case "Bar":
       case "Line":

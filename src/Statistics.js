@@ -79,9 +79,7 @@ function Statistics() {
   //New Stat Window popup
   const [popupOpen, setPopupOpen] = useState(false);
   const openPopup = function (e, editMode = false, id) {
-    console.log("Opening popup...", editMode, id);
     if (editMode) {
-      console.log("edit mode on");
       setCurrentWindow(userSettings.statistics.find((st) => st.id === id));
       setEditModeOn(true);
     }
@@ -113,7 +111,6 @@ function Statistics() {
     });
   };
   const uploadNewStat = async function (stat) {
-    console.log("stat", stat);
     if (user.demoMode) {
       const userSettingsCopy = userSettings;
       userSettingsCopy.statistics.unshift({
@@ -123,9 +120,7 @@ function Statistics() {
           { seconds: Math.floor(stat.dateRange[1].getTime()) / 1000 },
         ],
       });
-      console.log("userSettingsCopy", userSettingsCopy);
       setUserSettings(userSettingsCopy);
-      console.log("stat: ", stat);
     } else {
       const settingsDocRef = doc(db, user.id, "settings");
       await updateDoc(settingsDocRef, {
@@ -203,7 +198,6 @@ function Statistics() {
     async function subscribeToSettingsUpdates() {
       const settingsDocRef = doc(db, user.id, "settings");
       unsubscribe = await onSnapshot(settingsDocRef, (set) => {
-        console.log("Updating stats...");
         updateSettings();
       });
     }

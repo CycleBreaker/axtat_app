@@ -18,7 +18,7 @@ const firebaseConfig = {
 */
 const firebaseConfig = {
   apiKey: "AIzaSyBpZQW0zHFLHRqjsl9WE-D0SEPAMNoIqrg",
-  authDomain: "axtat-b6bfc.firebaseapp.com",
+  authDomain: "axtat.netlify.app",
   projectId: "axtat-b6bfc",
   storageBucket: "axtat-b6bfc.appspot.com",
   messagingSenderId: "249470019976",

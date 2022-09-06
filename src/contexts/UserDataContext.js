@@ -44,7 +44,6 @@ export function UserDataContextProvider(props) {
   const downloadUserData = async function () {
     const userDatabaseRef = collection(db, user.id);
     await getDocs(userDatabaseRef).then((dt) => {
-      console.log(dt);
       updateUserEntries(dt);
       updateSettings(dt);
     });
@@ -95,15 +94,13 @@ export function UserDataContextProvider(props) {
         setUser({ ...user, entriesLoaded: true });
       },
       (err) => {
-        console.log("Fethcing entries error ", err);
+        alert("Fethcing entries error ", err);
       }
     );
   };
 
   const updateSettings = async function () {
-    console.log("Updating user settings...");
     const userSettingsRef = await doc(db, `${user.id}/settings`);
-    console.log(userSettingsRef);
     await getDoc(userSettingsRef).then(
       (res) => {
         setUserSettings({
@@ -117,89 +114,12 @@ export function UserDataContextProvider(props) {
         setUser({ ...user, settingsLoaded: true });
       },
       (err) => {
-        console.log("Settings fetching error", err);
+        alert("Settings fetching error", err);
       }
     );
   };
-
-  /*
-  const convertStatsToChartData = function (stats) {
-    const filteredByDate = userEntries.filter(
-      (ent) =>
-        ent.date >= stats.dateRange[0].seconds * 1000 &&
-        ent.date <= stats.dateRange[1].seconds * 1000
-    );
-    console.log(userEntries);
-    userEntries.map((ent) => {
-      console.log(ent.date, "/", stats.dateRange[0].seconds * 1000);
-      console.log(ent.date, "/", stats.dateRange[1].seconds * 1000);
-      if (
-        ent.date >= stats.dateRange[0].seconds * 1000 &&
-        ent.date <= stats.dateRange[1].seconds * 1000
-      ) {
-        console.log("yes");
-      }
-    });
-    console.log(filteredByDate);
-    const displayedElements = new Object();
-    console.log(stats.displayTags);
-    if (stats.displayTags.length > 0) {
-      stats.displayTags.map((tg) => {
-        displayedElements[tg] = filteredByDate.filter((ent) => {
-          ent.tags.map((intg) => {
-            if (intg === tg) {
-              return intg;
-            }
-          });
-        });
-      });
-      console.log(displayedElements);
-    }
-    const displayedGroups = new Array();
-    const displayedItems = new Array();
-    const displayedSources = new Array();
-  };
-  */
-
-  //Check that runs every time the page is refreshed or the user enters the site
-  /*
-  const userCheck = async function () {
-    console.log("AUTH: running user check...");
-    const auth = getAuth();
-    let authUnsubscribe = null;
-    if (authUnsubscribe !== null) {
-      authUnsubscribe();
-    }
-    if (user.id === null) {
-      console.log("AUTH: state user is null");
-      console.log("AUTH: currentUser.uid is", auth.currentUser);
-      if (auth.currentUser === null) {
-        authUnsubscribe = onAuthStateChanged(auth, (usr) => {
-          setUser({
-            ...user,
-            userLoggedIn: true,
-            id: usr.uid,
-            name: usr.displayName,
-            pic: usr.photoURL,
-          });
-        });
-      } else {
-        setUser({
-          ...user,
-          userLoggedIn: true,
-          id: usr.uid,
-          name: usr.displayName,
-          pic: usr.photoURL,
-        });
-      }
-    } else {
-      console.log("AUTH: state user is", user.id);
-    }
-  };
-  */
 
   const loginDataToUser = async function (usrdt) {
-    console.log("LOOK HERE: ", usrdt);
     setUser({
       ...user,
       id: usrdt.user.uid,
@@ -245,7 +165,6 @@ export function UserDataContextProvider(props) {
   };
 
   const logout = function () {
-    console.log("Logging out...");
     firebase.auth().signOut();
     setUser({ id: "demo", name: "Demo User", loggedInForSure: false });
     setSessionSettings({ appLoaded: false });
@@ -286,12 +205,9 @@ export function UserDataContextProvider(props) {
   const turnOffDemoMode = () => setUser({ ...user, demoMode: false });
 
   useEffect(() => {
-    console.log("User ID useEffect");
     const compareUserIds = async function () {
       const auth = await getAuth();
-      console.log(auth);
       if (auth.currentUser !== null && auth.currentUser.uid !== user.id) {
-        console.log("ID does not match user");
         setUser({
           ...user,
           userLoggedIn: true,
@@ -304,13 +220,11 @@ export function UserDataContextProvider(props) {
       }
     };
     if (!user.loggedInForSure) {
-      console.log("User not logged in, comparing IDs");
       compareUserIds();
     }
   });
 
   useEffect(() => {
-    console.log("AND HERE: ", user.name);
     if (!user.entriesLoaded && !user.settingsLoaded) {
       downloadUserData();
     }
@@ -332,13 +246,6 @@ export function UserDataContextProvider(props) {
     //downloadUserData();
     return authUnsubscribe();
   }, []);
-
-  useEffect(() => {
-    console.log("userSettings: ", userSettings);
-    console.log("userEntries", userEntries);
-    console.log("userSettings.tags[0].name", userSettings.tags[0].name);
-    console.log("userSettings.groups[0]", userSettings.groups[0]);
-  });
 
   return (
     <UserDataContext.Provider
