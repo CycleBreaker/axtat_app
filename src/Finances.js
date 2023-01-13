@@ -486,7 +486,7 @@ function Finances(props) {
               margin: 0,
               top: "auto",
               right: tabletResolution ? 50 : "15%",
-              bottom: 80,
+              bottom: "80px",
               left: "auto",
               position: "fixed",
               display: location.pathname === "/finances" ? null : "none",
